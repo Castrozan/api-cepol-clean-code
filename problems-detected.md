@@ -1,4 +1,4 @@
-### Análise de Problemas e Estratégia de Refatoração
+# Análise de Problemas e Estratégia de Refatoração
 
 Após analisar o código do projeto, identifiquei vários problemas que podem ser melhorados através de refatoração. Abaixo está uma análise detalhada dos principais problemas e a estratégia proposta para resolvê-los.
 
