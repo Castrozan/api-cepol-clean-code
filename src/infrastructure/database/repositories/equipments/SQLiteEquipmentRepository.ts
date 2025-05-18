@@ -3,12 +3,26 @@ import { IEquipmentRepository } from 'domain/interfaces/equipments/IEquipmentRep
 import { getDatabase } from '../../sqlite/sqlite-client';
 
 /**
+ * Interface for Equipment database row
+ */
+interface EquipmentRow {
+    id: number;
+    name: string;
+    description: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    type: string | null;
+}
+
+/**
  * SQLite repository implementation for the Equipment entity
  */
 export class SQLiteEquipmentRepository implements IEquipmentRepository {
     async findById(id: number): Promise<Equipment | null> {
         const db = getDatabase();
-        const row = db.prepare('SELECT * FROM Equipment WHERE id = ?').get(id) as any;
+        const row = db.prepare('SELECT * FROM Equipment WHERE id = ?').get(id) as
+            | EquipmentRow
+            | undefined;
 
         if (!row) {
             return null;
@@ -26,7 +40,7 @@ export class SQLiteEquipmentRepository implements IEquipmentRepository {
 
     async findAll(): Promise<Equipment[]> {
         const db = getDatabase();
-        const rows = db.prepare('SELECT * FROM Equipment').all() as any[];
+        const rows = db.prepare('SELECT * FROM Equipment').all() as EquipmentRow[];
 
         return rows.map(
             (row) =>

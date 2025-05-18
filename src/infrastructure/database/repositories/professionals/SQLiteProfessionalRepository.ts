@@ -2,10 +2,25 @@ import { Professional } from 'domain/entities/professionals/Professional';
 import { IProfessionalRepository } from 'domain/interfaces/professionals/IProfessionalRepository';
 import { getDatabase } from '../../sqlite/sqlite-client';
 
+/**
+ * Interface for Professional database row
+ */
+interface ProfessionalRow {
+    id: number;
+    name: string;
+    role: string;
+    bio: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    hierarchy: number;
+}
+
 export class SQLiteProfessionalRepository implements IProfessionalRepository {
     async findById(id: number): Promise<Professional | null> {
         const db = getDatabase();
-        const row = db.prepare('SELECT * FROM Professional WHERE id = ?').get(id) as any;
+        const row = db.prepare('SELECT * FROM Professional WHERE id = ?').get(id) as
+            | ProfessionalRow
+            | undefined;
 
         if (!row) {
             return null;
@@ -24,7 +39,7 @@ export class SQLiteProfessionalRepository implements IProfessionalRepository {
 
     async findAll(): Promise<Professional[]> {
         const db = getDatabase();
-        const rows = db.prepare('SELECT * FROM Professional').all() as any[];
+        const rows = db.prepare('SELECT * FROM Professional').all() as ProfessionalRow[];
 
         return rows.map(
             (row) =>

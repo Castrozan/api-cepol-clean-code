@@ -4,19 +4,39 @@ import { IAboutRepository } from 'domain/interfaces/about/IAboutRepository';
 import { getDatabase } from '../../sqlite/sqlite-client';
 
 /**
+ * Interfaces for database rows
+ */
+interface AboutRow {
+    id: number;
+    bodyText: string;
+    secondText: string;
+    createdAt: string;
+}
+
+interface AboutImageRow {
+    id: number;
+    aboutId: number;
+    url: string | null;
+    title: string | null;
+    description: string | null;
+}
+
+/**
  * SQLite repository implementation for the About entity
  */
 export class SQLiteAboutRepository implements IAboutRepository {
     async findById(id: number): Promise<About | null> {
         const db = getDatabase();
-        const row = db.prepare('SELECT * FROM About WHERE id = ?').get(id) as any;
+        const row = db.prepare('SELECT * FROM About WHERE id = ?').get(id) as AboutRow | undefined;
 
         if (!row) {
             return null;
         }
 
         // Get the related images
-        const images = db.prepare('SELECT * FROM AboutImage WHERE aboutId = ?').all(id) as any[];
+        const images = db
+            .prepare('SELECT * FROM AboutImage WHERE aboutId = ?')
+            .all(id) as AboutImageRow[];
 
         // Map images to AboutImage objects
         const aboutImages = images.map(
@@ -34,7 +54,7 @@ export class SQLiteAboutRepository implements IAboutRepository {
 
     async findAll(): Promise<About[]> {
         const db = getDatabase();
-        const rows = db.prepare('SELECT * FROM About').all() as any[];
+        const rows = db.prepare('SELECT * FROM About').all() as AboutRow[];
 
         // For each about, get images
         return Promise.all(

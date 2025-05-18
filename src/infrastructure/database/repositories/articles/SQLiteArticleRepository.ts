@@ -5,12 +5,48 @@ import { IArticleRepository } from 'domain/interfaces/articles/IArticleRepositor
 import { getDatabase } from '../../sqlite/sqlite-client';
 
 /**
+ * Interfaces for database rows
+ */
+interface ArticleRow {
+    id: number;
+    title: string;
+    description: string;
+    bodyText: string;
+    secondText: string;
+    createdAt: string;
+    updatedAt: string;
+    professionalId: number | null;
+    author: string | null;
+    published: string | null;
+}
+
+interface ArticleImageRow {
+    id: number;
+    articleId: number;
+    url: string | null;
+    title: string | null;
+    description: string | null;
+}
+
+interface ProfessionalRow {
+    id: number;
+    name: string;
+    role: string;
+    bio: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    hierarchy: number;
+}
+
+/**
  * SQLite repository implementation for the Article entity
  */
 export class SQLiteArticleRepository implements IArticleRepository {
     async findById(id: number): Promise<Article | null> {
         const db = getDatabase();
-        const row = db.prepare('SELECT * FROM Article WHERE id = ?').get(id) as any;
+        const row = db.prepare('SELECT * FROM Article WHERE id = ?').get(id) as
+            | ArticleRow
+            | undefined;
 
         if (!row) {
             return null;
@@ -19,14 +55,14 @@ export class SQLiteArticleRepository implements IArticleRepository {
         // Get the related images
         const images = db
             .prepare('SELECT * FROM ArticleImage WHERE articleId = ?')
-            .all(id) as any[];
+            .all(id) as ArticleImageRow[];
 
         // Get related professional if exists
         let professional: Professional | null = null;
         if (row.professionalId) {
             const profRow = db
                 .prepare('SELECT * FROM Professional WHERE id = ?')
-                .get(row.professionalId) as any;
+                .get(row.professionalId) as ProfessionalRow | undefined;
             if (profRow) {
                 professional = new Professional(
                     profRow.id,
@@ -63,7 +99,7 @@ export class SQLiteArticleRepository implements IArticleRepository {
 
     async findAll(): Promise<Article[]> {
         const db = getDatabase();
-        const rows = db.prepare('SELECT * FROM Article').all() as any[];
+        const rows = db.prepare('SELECT * FROM Article').all() as ArticleRow[];
 
         // For each article, get images and professional
         return Promise.all(

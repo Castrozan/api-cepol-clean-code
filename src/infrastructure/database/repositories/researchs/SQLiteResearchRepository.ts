@@ -5,12 +5,46 @@ import { IResearchRepository } from 'domain/interfaces/researchs/IResearchReposi
 import { getDatabase } from '../../sqlite/sqlite-client';
 
 /**
+ * Interfaces for database rows
+ */
+interface ResearchRow {
+    id: number;
+    title: string;
+    description: string;
+    bodyText: string;
+    secondText: string;
+    createdAt: string;
+    updatedAt: string;
+    professionalId: number | null;
+}
+
+interface ResearchImageRow {
+    id: number;
+    researchId: number;
+    url: string | null;
+    title: string | null;
+    description: string | null;
+}
+
+interface ProfessionalRow {
+    id: number;
+    name: string;
+    role: string;
+    bio: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    hierarchy: number;
+}
+
+/**
  * SQLite repository implementation for the Research entity
  */
 export class SQLiteResearchRepository implements IResearchRepository {
     async findById(id: number): Promise<Research | null> {
         const db = getDatabase();
-        const row = db.prepare('SELECT * FROM Research WHERE id = ?').get(id) as any;
+        const row = db.prepare('SELECT * FROM Research WHERE id = ?').get(id) as
+            | ResearchRow
+            | undefined;
 
         if (!row) {
             return null;
@@ -19,14 +53,14 @@ export class SQLiteResearchRepository implements IResearchRepository {
         // Get the related images
         const images = db
             .prepare('SELECT * FROM ResearchImage WHERE researchId = ?')
-            .all(id) as any[];
+            .all(id) as ResearchImageRow[];
 
         // Get related professional if exists
         let professional: Professional | null = null;
         if (row.professionalId) {
             const profRow = db
                 .prepare('SELECT * FROM Professional WHERE id = ?')
-                .get(row.professionalId) as any;
+                .get(row.professionalId) as ProfessionalRow | undefined;
             if (profRow) {
                 professional = new Professional(
                     profRow.id,
@@ -61,7 +95,7 @@ export class SQLiteResearchRepository implements IResearchRepository {
 
     async findAll(): Promise<Research[]> {
         const db = getDatabase();
-        const rows = db.prepare('SELECT * FROM Research').all() as any[];
+        const rows = db.prepare('SELECT * FROM Research').all() as ResearchRow[];
 
         // For each research, get images and professional
         return Promise.all(
