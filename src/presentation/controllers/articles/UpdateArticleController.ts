@@ -101,7 +101,7 @@ export class UpdateArticleController extends OpenAPIRoute {
         }
     };
 
-    async handle(c) {
+    async handle() {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const {

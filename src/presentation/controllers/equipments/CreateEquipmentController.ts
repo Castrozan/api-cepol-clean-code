@@ -57,7 +57,7 @@ export class CreateEquipmentController extends OpenAPIRoute {
         }
     };
 
-    async handle(c) {
+    async handle() {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { name, description, imageUrl, type } = data.body;

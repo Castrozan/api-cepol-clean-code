@@ -70,16 +70,7 @@ export class UpdateProfessionalController extends OpenAPIRoute {
         }
     };
 
-    async handle(c: {
-        body: {
-            id: number;
-            name: string;
-            role: string;
-            bio?: string;
-            imageUrl?: string;
-            hierarchy?: number | null;
-        };
-    }) {
+    async handle() {
         const data = await this.getValidatedData();
 
         const { id, name, role, bio, imageUrl, hierarchy } = data.body;
