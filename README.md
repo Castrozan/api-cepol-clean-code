@@ -1,36 +1,94 @@
-# Cloudflare Workers OpenAPI 3.1
+# API CEPOL
 
-Este é um Worker do Cloudflare com OpenAPI 3.1 usando [chanfana](https://github.com/cloudflare/chanfana) e [Hono](https://github.com/honojs/hono).
+A simple API built with Hono.js, TypeScript, and SQLite.
 
-Este é um projeto de exemplo feito para ser usado como um ponto de partida rápido para construir Workers compatíveis com OpenAPI que geram o esquema `openapi.json` automaticamente a partir do código e validam a solicitação recebida de acordo com os parâmetros ou corpo da solicitação definidos.
+## Features
 
-## Começando
+- REST API with OpenAPI documentation
+- SQLite database for data persistence
+- Rate limiting
+- Security headers
 
-1. Inscreva-se no [Cloudflare Workers](https://workers.dev). O plano gratuito é mais do que suficiente para a maioria dos casos de uso.
-2. Clone este projeto e instale as dependências com `npm install`.
-3. Execute `wrangler login` para fazer login na sua conta Cloudflare no wrangler.
-4. Execute `wrangler deploy` para publicar a API no Cloudflare Workers.
+## Getting Started
 
-## Estrutura do Projeto
+### Prerequisites
 
-1. Seu roteador principal está definido em [`src/index.ts`](src/index.ts).
-2. Cada endpoint tem seu próprio arquivo em `src/endpoints/`.
-3. Para mais informações, leia a [documentação do chanfana](https://chanfana.pages.dev/) e a [documentação do Hono](https://hono.dev/docs).
+- Node.js (v16 or higher)
+- npm or yarn
 
-## Desenvolvimento
+### Installation
 
-1. Execute `wrangler dev` para iniciar uma instância local da API.
-2. Abra `http://localhost:8787/` no seu navegador para ver a interface Swagger onde você pode testar os endpoints.
-3. As alterações feitas na pasta `src/` irão automaticamente reiniciar o servidor, você só precisa atualizar a interface Swagger.
+1. Clone the repository
+2. Install dependencies:
 
-## Contribuição
+```bash
+npm install
+```
 
-1. Faça um fork do projeto.
-2. Crie uma nova branch (`git checkout -b feature/nova-funcionalidade`).
-3. Faça commit das suas alterações (`git commit -am 'Adiciona nova funcionalidade'`).
-4. Faça push para a branch (`git push origin feature/nova-funcionalidade`).
-5. Crie um novo Pull Request.
+3. Set up environment variables:
 
-## Licença
+```bash
+# Create a .env file with the following content
+PORT=3000
+NODE_ENV=development
+```
 
-Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+4. The database is automatically initialized when starting the application.
+
+### Running the Application
+
+Development mode:
+
+```bash
+npm run dev
+```
+
+Production mode:
+
+```bash
+npm run build
+npm start
+```
+
+### Linting
+
+```bash
+npm run lint
+npm run lint:fix
+```
+
+## API Documentation
+
+The API documentation is available at the root endpoint (`/`) when the server is running.
+
+## Project Structure
+
+```
+src/
+├── application/     # Application services and use cases
+├── domain/          # Domain models and interfaces
+├── infrastructure/  # External services, database, web server
+│   ├── database/    # Database implementation
+│   │   └── sqlite/  # SQLite configuration
+│   ├── middleware/  # API middleware
+│   └── web/         # Web server configuration
+├── presentation/    # API controllers and DTOs
+└── config/          # Application configuration
+```
+
+## Endpoints
+
+The API provides the following endpoints:
+
+- `/public/about` - About information (public)
+- `/about` - Manage about information (authenticated)
+- `/public/article` - Articles (public)
+- `/article` - Manage articles (authenticated)
+- `/public/equipment` - Equipment (public)
+- `/equipment` - Manage equipment (authenticated)
+- `/public/research` - Research (public)
+- `/research` - Manage research (authenticated)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
