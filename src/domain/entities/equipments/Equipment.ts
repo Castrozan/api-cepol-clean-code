@@ -10,7 +10,7 @@ export class Equipment {
         this.validate();
     }
 
-    private validate() {
+    private validate(): void {
         if (!this.name || this.name.trim().length === 0) {
             throw new Error('O nome é obrigatório.');
         }
@@ -19,11 +19,11 @@ export class Equipment {
         }
     }
 
-    public updateDescription(newDescription: string | null) {
+    public updateDescription(newDescription: string | null): void {
         this.description = newDescription;
     }
 
-    public updateImageUrl(newImageUrl: string | null) {
+    public updateImageUrl(newImageUrl: string | null): void {
         if (newImageUrl && !newImageUrl.startsWith('http://')) {
             throw new Error('A nova URL da imagem deve ser válida e começar com https://.');
         }
