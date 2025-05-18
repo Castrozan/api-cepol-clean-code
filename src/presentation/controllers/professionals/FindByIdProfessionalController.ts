@@ -56,7 +56,7 @@ export class FindByIdProfessionalController extends OpenAPIRoute {
         }
     };
 
-    async handle(req: { params: { id: number } }) {
+    async handle(req: { params: { id: number } }): Promise<object> {
         try {
             const { id } = req.params;
             const findByIdProfessionalUseCase = new FindByIdProfessionalUseCase(

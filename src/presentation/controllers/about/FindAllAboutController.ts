@@ -68,7 +68,7 @@ export class FindAllAboutController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         try {
             const findAllAboutUseCase = new FindAllAboutsUseCase(aboutRepository);
             const abouts = await findAllAboutUseCase.execute();

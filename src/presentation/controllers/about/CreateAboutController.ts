@@ -74,7 +74,7 @@ export class CreateAboutController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { bodyText, secondText, images } = data.body;

@@ -90,7 +90,7 @@ export class UpdateAboutController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, bodyText, secondText, images } = data.body;

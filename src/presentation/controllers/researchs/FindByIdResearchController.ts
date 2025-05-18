@@ -75,7 +75,7 @@ export class FindByIdResearchController extends OpenAPIRoute {
         }
     };
 
-    async handle(req: { params: { id: number } }) {
+    async handle(req: { params: { id: number } }): Promise<object> {
         try {
             const { id } = req.params;
             const findByIdResearchUseCase = new FindByIdResearchUseCase(researchRepository);

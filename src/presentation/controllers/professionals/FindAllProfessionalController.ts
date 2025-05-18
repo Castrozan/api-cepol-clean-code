@@ -45,7 +45,7 @@ export class FindAllProfessionalController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         try {
             const findAllProfessionalUseCase = new FindAllProfessionalUseCase(
                 professionalRepository

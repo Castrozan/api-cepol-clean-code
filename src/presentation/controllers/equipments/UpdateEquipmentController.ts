@@ -70,7 +70,7 @@ export class UpdateEquipmentController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, name, description, imageUrl, type } = data.body;

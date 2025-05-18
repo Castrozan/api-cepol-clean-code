@@ -80,7 +80,7 @@ export class CreateResearchController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { title, description, bodyText, secondText, professionalId, images } = data.body;

@@ -55,7 +55,7 @@ export class FindByIdEquipmentController extends OpenAPIRoute {
         }
     };
 
-    async handle(req: { params: { id: number } }) {
+    async handle(req: { params: { id: number } }): Promise<object> {
         try {
             const { id } = req.params;
             const findByIdEquipmentUseCase = new FindByIdEquipmentUseCase(equipmentRepository);

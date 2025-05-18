@@ -96,7 +96,7 @@ export class UpdateResearchController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, title, description, bodyText, secondText, professionalId, images } = data.body;

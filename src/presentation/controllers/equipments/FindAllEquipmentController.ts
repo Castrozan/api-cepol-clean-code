@@ -44,7 +44,7 @@ export class FindAllEquipmentController extends OpenAPIRoute {
         }
     };
 
-    async handle() {
+    async handle(): Promise<object> {
         try {
             const findAllEquipmentsUseCase = new FindAllEquipmentsUseCase(equipmentRepository);
             const equipments = await findAllEquipmentsUseCase.execute();
