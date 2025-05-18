@@ -1,14 +1,14 @@
-import { getDatabase } from "./sqlite-client";
+import { getDatabase } from './sqlite-client';
 
 /**
  * Initialize the SQLite database schema
  * Creates all necessary tables if they don't exist.
  */
 export function initializeDatabase(): void {
-  const db = getDatabase();
+    const db = getDatabase();
 
-  // Create tables
-  db.exec(`
+    // Create tables
+    db.exec(`
     -- Create Professional table
     -- Stores information about professionals associated with the institution
     CREATE TABLE IF NOT EXISTS Professional (

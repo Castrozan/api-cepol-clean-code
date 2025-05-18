@@ -1,4 +1,4 @@
-import { UpdateArticleImageDto } from "./UpdateArticleImageDto";
+import { UpdateArticleImageDto } from './UpdateArticleImageDto';
 
 export class UpdateArticleDto {
     id: number;

@@ -1,4 +1,4 @@
-import { AboutImage } from "./AboutImage";
+import { AboutImage } from './AboutImage';
 
 export class About {
     constructor(
@@ -6,8 +6,6 @@ export class About {
         public bodyText: string,
         public secondText: string,
         public createdAt: Date,
-        public images: AboutImage[] | null,
-    ) {
-    }
-
+        public images: AboutImage[] | null
+    ) {}
 }
