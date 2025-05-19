@@ -1,9 +1,7 @@
 import { UpdateArticleUseCase } from 'application/use-cases/articles/UpdateArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteArticleRepository } from 'infrastructure/database/repositories/articles/SQLiteArticleRepository';
+import articleRepository from 'infrastructure/database/repositories/articles';
 import { z } from 'zod';
-
-const articleRepository = new SQLiteArticleRepository();
 
 export class UpdateArticleController extends OpenAPIRoute {
     schema = {

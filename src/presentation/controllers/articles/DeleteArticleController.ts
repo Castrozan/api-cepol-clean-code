@@ -1,9 +1,7 @@
 import { DeleteArticleUseCase } from 'application/use-cases/articles/DeleteArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteArticleRepository } from 'infrastructure/database/repositories/articles/SQLiteArticleRepository';
+import articleRepository from 'infrastructure/database/repositories/articles';
 import { z } from 'zod';
-
-const articleRepository = new SQLiteArticleRepository();
 
 export class DeleteArticleController extends OpenAPIRoute {
     schema = {

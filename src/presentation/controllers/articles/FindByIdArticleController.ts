@@ -1,9 +1,7 @@
 import { FindByIdArticleUseCase } from 'application/use-cases/articles/FindByIdArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteArticleRepository } from 'infrastructure/database/repositories/articles/SQLiteArticleRepository';
+import articleRepository from 'infrastructure/database/repositories/articles';
 import { z } from 'zod';
-
-const articleRepository = new SQLiteArticleRepository();
 
 export class FindByIdArticleController extends OpenAPIRoute {
     schema = {

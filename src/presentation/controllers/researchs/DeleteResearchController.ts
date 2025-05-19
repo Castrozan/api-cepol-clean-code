@@ -1,9 +1,7 @@
 import { DeleteResearchUseCase } from 'application/use-cases/researchs/DeleteResearchUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteResearchRepository } from 'infrastructure/database/repositories/researchs/SQLiteResearchRepository';
+import researchRepository from 'infrastructure/database/repositories/researchs';
 import { z } from 'zod';
-
-const researchRepository = new SQLiteResearchRepository();
 
 export class DeleteResearchController extends OpenAPIRoute {
     schema = {

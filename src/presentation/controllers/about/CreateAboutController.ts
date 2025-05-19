@@ -1,9 +1,7 @@
 import { CreateAboutUseCase } from 'application/use-cases/about/CreateAboutUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteAboutRepository } from 'infrastructure/database/repositories/about/SQLiteAboutRepository';
+import aboutRepository from 'infrastructure/database/repositories/about';
 import { z } from 'zod';
-
-const aboutRepository = new SQLiteAboutRepository();
 
 export class CreateAboutController extends OpenAPIRoute {
     schema = {

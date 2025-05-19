@@ -1,9 +1,7 @@
 import { FindAllProfessionalUseCase } from 'application/use-cases/professionals/FindAllProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteProfessionalRepository } from 'infrastructure/database/repositories/professionals/SQLiteProfessionalRepository';
+import professionalRepository from 'infrastructure/database/repositories/professionals';
 import { z } from 'zod';
-
-const professionalRepository = new SQLiteProfessionalRepository();
 
 export class FindAllProfessionalController extends OpenAPIRoute {
     schema = {

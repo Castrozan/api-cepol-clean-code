@@ -1,9 +1,7 @@
 import { CreateEquipmentUseCase } from 'application/use-cases/equipments/CreateEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { SQLiteEquipmentRepository } from 'infrastructure/database/repositories/equipments/SQLiteEquipmentRepository';
+import equipmentRepository from 'infrastructure/database/repositories/equipments';
 import { z } from 'zod';
-
-const equipmentRepository = new SQLiteEquipmentRepository();
 
 export class CreateEquipmentController extends OpenAPIRoute {
     schema = {
