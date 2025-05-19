@@ -1,6 +1,7 @@
 import { CreateEquipmentUseCase } from 'application/use-cases/equipments/CreateEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class CreateEquipmentController extends OpenAPIRoute {
@@ -51,41 +52,46 @@ export class CreateEquipmentController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { name, description, imageUrl, type } = data.body;
 
-        try {
-            const createEquipmentUseCase = new CreateEquipmentUseCase(equipmentRepository);
+        const createEquipmentUseCase = new CreateEquipmentUseCase(equipmentRepository);
 
-            const equipment = await createEquipmentUseCase.execute({
-                name,
-                description,
-                imageUrl,
-                type
-            });
+        const equipment = await createEquipmentUseCase.execute({
+            name,
+            description,
+            imageUrl,
+            type
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: equipment.id,
-                    name: equipment.name,
-                    description: equipment.description,
-                    imageUrl: equipment.imageUrl,
-                    createdAt: equipment.createdAt.toISOString(),
-                    type: equipment.type
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Equipment creation failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: equipment.id,
+                name: equipment.name,
+                description: equipment.description,
+                imageUrl: equipment.imageUrl,
+                createdAt: equipment.createdAt.toISOString(),
+                type: equipment.type
+            }
+        };
     }
 }

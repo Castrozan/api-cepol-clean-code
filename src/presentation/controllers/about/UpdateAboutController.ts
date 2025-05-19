@@ -1,6 +1,7 @@
 import { UpdateAboutUseCase } from 'application/use-cases/about/UpdateAboutUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class UpdateAboutController extends OpenAPIRoute {
@@ -84,56 +85,61 @@ export class UpdateAboutController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, bodyText, secondText, images } = data.body;
 
-        try {
-            const updateAboutUseCase = new UpdateAboutUseCase(aboutRepository);
+        const updateAboutUseCase = new UpdateAboutUseCase(aboutRepository);
 
-            const about = await updateAboutUseCase.execute({
-                id,
-                bodyText,
-                secondText,
-                images: images
-                    ? images.map((image) => ({
+        const about = await updateAboutUseCase.execute({
+            id,
+            bodyText,
+            secondText,
+            images: images
+                ? images.map((image) => ({
+                      id: image.id,
+                      url: image.url,
+                      title: image.title,
+                      description: image.description,
+                      aboutId: image.aboutId
+                  }))
+                : null
+        });
+
+        return {
+            success: true,
+            result: {
+                id: about.id,
+                bodyText: about.bodyText,
+                secondText: about.secondText,
+                images: about.images
+                    ? about.images.map((image) => ({
                           id: image.id,
+                          aboutId: image.aboutId,
                           url: image.url,
                           title: image.title,
-                          description: image.description,
-                          aboutId: image.aboutId
+                          description: image.description
                       }))
-                    : null
-            });
-
-            return {
-                success: true,
-                result: {
-                    id: about.id,
-                    bodyText: about.bodyText,
-                    secondText: about.secondText,
-                    images: about.images
-                        ? about.images.map((image) => ({
-                              id: image.id,
-                              aboutId: image.aboutId,
-                              url: image.url,
-                              title: image.title,
-                              description: image.description
-                          }))
-                        : null,
-                    createdAt: about.createdAt.toISOString()
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'About update failed'
-            };
-        }
+                    : null,
+                createdAt: about.createdAt.toISOString()
+            }
+        };
     }
 }

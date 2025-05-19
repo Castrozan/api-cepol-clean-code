@@ -1,6 +1,7 @@
 import { FindByIdArticleUseCase } from 'application/use-cases/articles/FindByIdArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import articleRepository from 'infrastructure/database/repositories/articles';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindByIdArticleController extends OpenAPIRoute {
@@ -73,54 +74,59 @@ export class FindByIdArticleController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(req: { params: { id: number } }): Promise<object> {
-        try {
-            const { id } = req.params;
+        const { id } = req.params;
 
-            const findByIdArticleUseCase = new FindByIdArticleUseCase(articleRepository);
-            const article = await findByIdArticleUseCase.execute(id);
+        const findByIdArticleUseCase = new FindByIdArticleUseCase(articleRepository);
+        const article = await findByIdArticleUseCase.execute(id);
 
-            if (!article) {
-                return {
-                    success: false,
-                    message: 'Article not found'
-                };
-            }
-
-            return {
-                success: true,
-                result: {
-                    id: article.id,
-                    title: article.title,
-                    description: article.description,
-                    bodyText: article.bodyText,
-                    secondText: article.secondText,
-                    createdAt: article.createdAt.toISOString(),
-                    updatedAt: article.updatedAt.toISOString(),
-                    professionalId: article.professionalId,
-                    author: article.author,
-                    published: article.published,
-                    images: article.images
-                        ? article.images.map((image) => ({
-                              id: image.id,
-                              articleId: image.articleId,
-                              url: image.url,
-                              title: image.title,
-                              description: image.description
-                          }))
-                        : null,
-                    professional: article.professional ? article.professional : null
-                }
-            };
-        } catch (error) {
+        if (!article) {
             return {
                 success: false,
-                message: error.message || 'Failed to retrieve article'
+                message: 'Article not found'
             };
         }
+
+        return {
+            success: true,
+            result: {
+                id: article.id,
+                title: article.title,
+                description: article.description,
+                bodyText: article.bodyText,
+                secondText: article.secondText,
+                createdAt: article.createdAt.toISOString(),
+                updatedAt: article.updatedAt.toISOString(),
+                professionalId: article.professionalId,
+                author: article.author,
+                published: article.published,
+                images: article.images
+                    ? article.images.map((image) => ({
+                          id: image.id,
+                          articleId: image.articleId,
+                          url: image.url,
+                          title: image.title,
+                          description: image.description
+                      }))
+                    : null,
+                professional: article.professional ? article.professional : null
+            }
+        };
     }
 }

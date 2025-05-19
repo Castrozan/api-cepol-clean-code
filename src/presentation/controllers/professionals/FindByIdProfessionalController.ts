@@ -1,6 +1,7 @@
 import { FindByIdProfessionalUseCase } from 'application/use-cases/professionals/FindByIdProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import professionalRepository from 'infrastructure/database/repositories/professionals';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindByIdProfessionalController extends OpenAPIRoute {
@@ -50,42 +51,45 @@ export class FindByIdProfessionalController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(req: { params: { id: number } }): Promise<object> {
-        try {
-            const { id } = req.params;
-            const findByIdProfessionalUseCase = new FindByIdProfessionalUseCase(
-                professionalRepository
-            );
-            const professional = await findByIdProfessionalUseCase.execute(id);
+        const { id } = req.params;
+        const findByIdProfessionalUseCase = new FindByIdProfessionalUseCase(professionalRepository);
+        const professional = await findByIdProfessionalUseCase.execute(id);
 
-            if (!professional) {
-                return {
-                    success: false,
-                    message: 'Professional not found'
-                };
-            }
-
-            return {
-                success: true,
-                result: {
-                    id: professional.id,
-                    name: professional.name,
-                    role: professional.role,
-                    bio: professional.bio,
-                    imageUrl: professional.imageUrl,
-                    createdAt: professional.createdAt.toISOString(),
-                    hierarchy: professional.hierarchy
-                }
-            };
-        } catch (error) {
+        if (!professional) {
             return {
                 success: false,
-                message: error.message || 'Failed to retrieve professional'
+                message: 'Professional not found'
             };
         }
+
+        return {
+            success: true,
+            result: {
+                id: professional.id,
+                name: professional.name,
+                role: professional.role,
+                bio: professional.bio,
+                imageUrl: professional.imageUrl,
+                createdAt: professional.createdAt.toISOString(),
+                hierarchy: professional.hierarchy
+            }
+        };
     }
 }

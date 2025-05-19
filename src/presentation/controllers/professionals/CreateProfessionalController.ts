@@ -1,6 +1,7 @@
 import { CreateProfessionalUseCase } from 'application/use-cases/professionals/CreateProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import professionalRepository from 'infrastructure/database/repositories/professionals';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class CreateProfessionalController extends OpenAPIRoute {
@@ -53,43 +54,48 @@ export class CreateProfessionalController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { name, role, bio, imageUrl, hierarchy } = data.body;
 
-        try {
-            const createProfessionalUseCase = new CreateProfessionalUseCase(professionalRepository);
+        const createProfessionalUseCase = new CreateProfessionalUseCase(professionalRepository);
 
-            const professional = await createProfessionalUseCase.execute({
-                name,
-                role,
-                bio,
-                imageUrl,
-                hierarchy
-            });
+        const professional = await createProfessionalUseCase.execute({
+            name,
+            role,
+            bio,
+            imageUrl,
+            hierarchy
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: professional.id,
-                    name: professional.name,
-                    role: professional.role,
-                    bio: professional.bio,
-                    imageUrl: professional.imageUrl,
-                    createdAt: professional.createdAt.toISOString(),
-                    hierarchy: professional.hierarchy
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Professional creation failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: professional.id,
+                name: professional.name,
+                role: professional.role,
+                bio: professional.bio,
+                imageUrl: professional.imageUrl,
+                createdAt: professional.createdAt.toISOString(),
+                hierarchy: professional.hierarchy
+            }
+        };
     }
 }

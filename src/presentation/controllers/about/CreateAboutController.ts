@@ -1,6 +1,7 @@
 import { CreateAboutUseCase } from 'application/use-cases/about/CreateAboutUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class CreateAboutController extends OpenAPIRoute {
@@ -68,46 +69,51 @@ export class CreateAboutController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { bodyText, secondText, images } = data.body;
 
-        try {
-            const createAboutUseCase = new CreateAboutUseCase(aboutRepository);
+        const createAboutUseCase = new CreateAboutUseCase(aboutRepository);
 
-            const about = await createAboutUseCase.execute({
-                bodyText,
-                secondText,
-                images: images
-                    ? images.map((image) => ({
-                          url: image.url,
-                          title: image.title,
-                          description: image.description
-                      }))
-                    : null,
-                createdAt: new Date()
-            });
+        const about = await createAboutUseCase.execute({
+            bodyText,
+            secondText,
+            images: images
+                ? images.map((image) => ({
+                      url: image.url,
+                      title: image.title,
+                      description: image.description
+                  }))
+                : null,
+            createdAt: new Date()
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: about.id,
-                    bodyText: about.bodyText,
-                    secondText: about.secondText,
-                    images: about.images,
-                    createdAt: about.createdAt.toISOString()
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'About creation failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: about.id,
+                bodyText: about.bodyText,
+                secondText: about.secondText,
+                images: about.images,
+                createdAt: about.createdAt.toISOString()
+            }
+        };
     }
 }

@@ -1,6 +1,7 @@
 import { DeleteProfessionalUseCase } from 'application/use-cases/professionals/DeleteProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import professionalRepository from 'infrastructure/database/repositories/professionals';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class DeleteProfessionalController extends OpenAPIRoute {
@@ -34,28 +35,33 @@ export class DeleteProfessionalController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteProfessionalUseCase = new DeleteProfessionalUseCase(professionalRepository);
+        const deleteProfessionalUseCase = new DeleteProfessionalUseCase(professionalRepository);
 
-            await deleteProfessionalUseCase.execute(id);
+        await deleteProfessionalUseCase.execute(id);
 
-            return {
-                success: true
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Professional deletion failed'
-            };
-        }
+        return {
+            success: true
+        };
     }
 }

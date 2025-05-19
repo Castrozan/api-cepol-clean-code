@@ -1,6 +1,7 @@
 import { FindByIdEquipmentUseCase } from 'application/use-cases/equipments/FindByIdEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindByIdEquipmentController extends OpenAPIRoute {
@@ -49,39 +50,44 @@ export class FindByIdEquipmentController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(req: { params: { id: number } }): Promise<object> {
-        try {
-            const { id } = req.params;
-            const findByIdEquipmentUseCase = new FindByIdEquipmentUseCase(equipmentRepository);
-            const equipment = await findByIdEquipmentUseCase.execute(id);
+        const { id } = req.params;
+        const findByIdEquipmentUseCase = new FindByIdEquipmentUseCase(equipmentRepository);
+        const equipment = await findByIdEquipmentUseCase.execute(id);
 
-            if (!equipment) {
-                return {
-                    success: false,
-                    message: 'Equipment not found'
-                };
-            }
-
-            return {
-                success: true,
-                result: {
-                    id: equipment.id,
-                    name: equipment.name,
-                    description: equipment.description,
-                    imageUrl: equipment.imageUrl,
-                    createdAt: equipment.createdAt.toISOString(),
-                    type: equipment.type
-                }
-            };
-        } catch (error) {
+        if (!equipment) {
             return {
                 success: false,
-                message: error.message || 'Failed to retrieve equipment'
+                message: 'Equipment not found'
             };
         }
+
+        return {
+            success: true,
+            result: {
+                id: equipment.id,
+                name: equipment.name,
+                description: equipment.description,
+                imageUrl: equipment.imageUrl,
+                createdAt: equipment.createdAt.toISOString(),
+                type: equipment.type
+            }
+        };
     }
 }

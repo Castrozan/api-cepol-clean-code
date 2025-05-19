@@ -1,6 +1,7 @@
 import { CreateResearchUseCase } from 'application/use-cases/researchs/CreateResearchUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import researchRepository from 'infrastructure/database/repositories/researchs';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class CreateResearchController extends OpenAPIRoute {
@@ -74,51 +75,56 @@ export class CreateResearchController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { title, description, bodyText, secondText, professionalId, images } = data.body;
 
-        try {
-            const createResearchUseCase = new CreateResearchUseCase(researchRepository);
+        const createResearchUseCase = new CreateResearchUseCase(researchRepository);
 
-            const research = await createResearchUseCase.execute({
-                title,
-                description,
-                bodyText,
-                secondText,
-                professionalId,
-                images: images
-                    ? images.map((image) => ({
-                          url: image.url,
-                          title: image.title,
-                          description: image.description
-                      }))
-                    : null
-            });
+        const research = await createResearchUseCase.execute({
+            title,
+            description,
+            bodyText,
+            secondText,
+            professionalId,
+            images: images
+                ? images.map((image) => ({
+                      url: image.url,
+                      title: image.title,
+                      description: image.description
+                  }))
+                : null
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: research.id,
-                    title: research.title,
-                    description: research.description,
-                    bodyText: research.bodyText,
-                    secondText: research.secondText,
-                    images: research.image,
-                    createdAt: research.createdAt.toISOString(),
-                    updatedAt: research.updatedAt.toISOString()
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Research creation failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: research.id,
+                title: research.title,
+                description: research.description,
+                bodyText: research.bodyText,
+                secondText: research.secondText,
+                images: research.image,
+                createdAt: research.createdAt.toISOString(),
+                updatedAt: research.updatedAt.toISOString()
+            }
+        };
     }
 }

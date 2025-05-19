@@ -1,6 +1,7 @@
 import { FindAllAboutsUseCase } from 'application/use-cases/about/FindAllAboutUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindAllAboutController extends OpenAPIRoute {
@@ -62,38 +63,43 @@ export class FindAllAboutController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
-        try {
-            const findAllAboutUseCase = new FindAllAboutsUseCase(aboutRepository);
-            const abouts = await findAllAboutUseCase.execute();
+        const findAllAboutUseCase = new FindAllAboutsUseCase(aboutRepository);
+        const abouts = await findAllAboutUseCase.execute();
 
-            return {
-                success: true,
-                result: abouts.map((about) => ({
-                    id: about.id,
-                    bodyText: about.bodyText,
-                    secondText: about.secondText,
-                    createdAt: about.createdAt.toISOString(),
-                    images: about.images
-                        ? about.images.map((image) => ({
-                              id: image.id,
-                              researchId: image.aboutId,
-                              url: image.url,
-                              title: image.title,
-                              description: image.description
-                          }))
-                        : null
-                }))
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Failed to retrieve abouts'
-            };
-        }
+        return {
+            success: true,
+            result: abouts.map((about) => ({
+                id: about.id,
+                bodyText: about.bodyText,
+                secondText: about.secondText,
+                createdAt: about.createdAt.toISOString(),
+                images: about.images
+                    ? about.images.map((image) => ({
+                          id: image.id,
+                          researchId: image.aboutId,
+                          url: image.url,
+                          title: image.title,
+                          description: image.description
+                      }))
+                    : null
+            }))
+        };
     }
 }

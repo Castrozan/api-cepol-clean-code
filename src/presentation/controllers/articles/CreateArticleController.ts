@@ -1,6 +1,7 @@
 import { CreateArticleUseCase } from 'application/use-cases/articles/CreateArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import articleRepository from 'infrastructure/database/repositories/articles';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class CreateArticleController extends OpenAPIRoute {
@@ -78,10 +79,22 @@ export class CreateArticleController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
@@ -96,45 +109,38 @@ export class CreateArticleController extends OpenAPIRoute {
             images
         } = data.body;
 
-        try {
-            const createArticleUseCase = new CreateArticleUseCase(articleRepository);
+        const createArticleUseCase = new CreateArticleUseCase(articleRepository);
 
-            const article = await createArticleUseCase.execute({
-                title,
-                description,
-                bodyText,
-                secondText,
-                professionalId,
-                author,
-                published,
-                images: images
-                    ? images.map((image) => ({
-                          url: image.url,
-                          title: image.title,
-                          description: image.description
-                      }))
-                    : null
-            });
+        const article = await createArticleUseCase.execute({
+            title,
+            description,
+            bodyText,
+            secondText,
+            professionalId,
+            author,
+            published,
+            images: images
+                ? images.map((image) => ({
+                      url: image.url,
+                      title: image.title,
+                      description: image.description
+                  }))
+                : null
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: article.id,
-                    title: article.title,
-                    description: article.description,
-                    bodyText: article.bodyText,
-                    secondText: article.secondText,
-                    professionalId: article.professionalId,
-                    images: article.images,
-                    createdAt: article.createdAt.toISOString(),
-                    updatedAt: article.updatedAt.toISOString()
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Article creation failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: article.id,
+                title: article.title,
+                description: article.description,
+                bodyText: article.bodyText,
+                secondText: article.secondText,
+                professionalId: article.professionalId,
+                images: article.images,
+                createdAt: article.createdAt.toISOString(),
+                updatedAt: article.updatedAt.toISOString()
+            }
+        };
     }
 }

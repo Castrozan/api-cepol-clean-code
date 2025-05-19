@@ -1,6 +1,7 @@
 import { UpdateProfessionalUseCase } from 'application/use-cases/professionals/UpdateProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import professionalRepository from 'infrastructure/database/repositories/professionals';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class UpdateProfessionalController extends OpenAPIRoute {
@@ -64,44 +65,49 @@ export class UpdateProfessionalController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData();
 
         const { id, name, role, bio, imageUrl, hierarchy } = data.body;
 
-        try {
-            const updateProfessionalUseCase = new UpdateProfessionalUseCase(professionalRepository);
+        const updateProfessionalUseCase = new UpdateProfessionalUseCase(professionalRepository);
 
-            const professional = await updateProfessionalUseCase.execute({
-                id,
-                name,
-                role,
-                bio,
-                imageUrl,
-                hierarchy
-            });
+        const professional = await updateProfessionalUseCase.execute({
+            id,
+            name,
+            role,
+            bio,
+            imageUrl,
+            hierarchy
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: professional.id,
-                    name: professional.name,
-                    role: professional.role,
-                    bio: professional.bio,
-                    imageUrl: professional.imageUrl,
-                    createdAt: professional.createdAt.toISOString(),
-                    hierarchy: professional.hierarchy
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Professional update failed'
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: professional.id,
+                name: professional.name,
+                role: professional.role,
+                bio: professional.bio,
+                imageUrl: professional.imageUrl,
+                createdAt: professional.createdAt.toISOString(),
+                hierarchy: professional.hierarchy
+            }
+        };
     }
 }

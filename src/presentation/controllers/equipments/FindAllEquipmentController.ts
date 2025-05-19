@@ -1,6 +1,7 @@
 import { FindAllEquipmentsUseCase } from 'application/use-cases/equipments/FindAllEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindAllEquipmentController extends OpenAPIRoute {
@@ -38,31 +39,36 @@ export class FindAllEquipmentController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
-        try {
-            const findAllEquipmentsUseCase = new FindAllEquipmentsUseCase(equipmentRepository);
-            const equipments = await findAllEquipmentsUseCase.execute();
+        const findAllEquipmentsUseCase = new FindAllEquipmentsUseCase(equipmentRepository);
+        const equipments = await findAllEquipmentsUseCase.execute();
 
-            return {
-                success: true,
-                result: equipments.map((equipment) => ({
-                    id: equipment.id,
-                    name: equipment.name,
-                    description: equipment.description,
-                    imageUrl: equipment.imageUrl,
-                    createdAt: equipment.createdAt.toISOString(),
-                    type: equipment.type
-                }))
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Failed to retrieve equipments'
-            };
-        }
+        return {
+            success: true,
+            result: equipments.map((equipment) => ({
+                id: equipment.id,
+                name: equipment.name,
+                description: equipment.description,
+                imageUrl: equipment.imageUrl,
+                createdAt: equipment.createdAt.toISOString(),
+                type: equipment.type
+            }))
+        };
     }
 }

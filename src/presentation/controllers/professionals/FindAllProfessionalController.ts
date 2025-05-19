@@ -1,6 +1,7 @@
 import { FindAllProfessionalUseCase } from 'application/use-cases/professionals/FindAllProfessionalUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import professionalRepository from 'infrastructure/database/repositories/professionals';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class FindAllProfessionalController extends OpenAPIRoute {
@@ -39,34 +40,37 @@ export class FindAllProfessionalController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
-        try {
-            const findAllProfessionalUseCase = new FindAllProfessionalUseCase(
-                professionalRepository
-            );
-            const professionals = await findAllProfessionalUseCase.execute();
+        const findAllProfessionalUseCase = new FindAllProfessionalUseCase(professionalRepository);
+        const professionals = await findAllProfessionalUseCase.execute();
 
-            return {
-                success: true,
-                result: professionals.map((professional) => ({
-                    id: professional.id,
-                    name: professional.name,
-                    role: professional.role,
-                    bio: professional.bio,
-                    imageUrl: professional.imageUrl,
-                    createdAt: professional.createdAt.toISOString(),
-                    hierarchy: professional.hierarchy
-                }))
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Failed to retrieve professionals'
-            };
-        }
+        return {
+            success: true,
+            result: professionals.map((professional) => ({
+                id: professional.id,
+                name: professional.name,
+                role: professional.role,
+                bio: professional.bio,
+                imageUrl: professional.imageUrl,
+                createdAt: professional.createdAt.toISOString(),
+                hierarchy: professional.hierarchy
+            }))
+        };
     }
 }

@@ -23,6 +23,8 @@
     "outDir": "dist",
     "target": "es2020",
     "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "types": [
       "@types/node"
     ]

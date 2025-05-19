@@ -1,6 +1,7 @@
 import { DeleteEquipmentUseCase } from 'application/use-cases/equipments/DeleteEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
 import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
 
 export class DeleteEquipmentController extends OpenAPIRoute {
@@ -34,28 +35,33 @@ export class DeleteEquipmentController extends OpenAPIRoute {
                         })
                     }
                 }
+            },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
             }
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteEquipmentUseCase = new DeleteEquipmentUseCase(equipmentRepository);
+        const deleteEquipmentUseCase = new DeleteEquipmentUseCase(equipmentRepository);
 
-            await deleteEquipmentUseCase.execute(id);
+        await deleteEquipmentUseCase.execute(id);
 
-            return {
-                success: true
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Equipment deletion failed'
-            };
-        }
+        return {
+            success: true
+        };
     }
 }
