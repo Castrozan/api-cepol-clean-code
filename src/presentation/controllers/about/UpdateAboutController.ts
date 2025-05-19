@@ -1,7 +1,8 @@
 import { UpdateAboutUseCase } from 'application/use-cases/about/UpdateAboutUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class UpdateAboutController extends OpenAPIRoute {
@@ -41,62 +42,31 @@ export class UpdateAboutController extends OpenAPIRoute {
                 description: 'About updated successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                bodyText: z.string().nullable(),
-                                secondText: z.string().nullable(),
-                                createdAt: z.string(),
-                                images: z
-                                    .array(
-                                        z.object({
-                                            id: z.number().nullable(),
-                                            url: z.string().nullable(),
-                                            title: z.string().nullable(),
-                                            description: z.string().nullable(),
-                                            aboutId: z.number().nullable()
-                                        })
-                                    )
-                                    .nullable()
-                            })
-                        })
+                        schema: z.object(
+                            successResponse(
+                                z.object({
+                                    id: z.number(),
+                                    bodyText: z.string().nullable(),
+                                    secondText: z.string().nullable(),
+                                    createdAt: z.string(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number().nullable(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable(),
+                                                aboutId: z.number().nullable()
+                                            })
+                                        )
+                                        .nullable()
+                                })
+                            )
+                        )
                     }
                 }
             },
-            '400': {
-                description: 'Invalid input',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '404': {
-                description: 'About not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '500': {
-                description: 'Server error',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 

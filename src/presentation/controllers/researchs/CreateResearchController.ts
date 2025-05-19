@@ -1,7 +1,8 @@
 import { CreateResearchUseCase } from 'application/use-cases/researchs/CreateResearchUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import researchRepository from 'infrastructure/database/repositories/researchs';
 import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class CreateResearchController extends OpenAPIRoute {
@@ -38,55 +39,35 @@ export class CreateResearchController extends OpenAPIRoute {
                 description: 'Research created successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                title: z.string(),
-                                description: z.string().nullable(),
-                                bodyText: z.string().nullable(),
-                                secondText: z.string().nullable(),
-                                professionalId: z.number().optional(),
-                                images: z
-                                    .array(
-                                        z.object({
-                                            id: z.number(),
-                                            researchId: z.number(),
-                                            url: z.string().nullable(),
-                                            title: z.string().nullable(),
-                                            description: z.string().nullable()
-                                        })
-                                    )
-                                    .nullable(),
-                                createdAt: z.string(),
-                                updatedAt: z.string()
-                            })
-                        })
+                        schema: z.object(
+                            successResponse(
+                                z.object({
+                                    id: z.number(),
+                                    title: z.string(),
+                                    description: z.string().nullable(),
+                                    bodyText: z.string().nullable(),
+                                    secondText: z.string().nullable(),
+                                    professionalId: z.number().optional(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number(),
+                                                researchId: z.number(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable()
+                                            })
+                                        )
+                                        .nullable(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string()
+                                })
+                            )
+                        )
                     }
                 }
             },
-            '400': {
-                description: 'Invalid input',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '500': {
-                description: 'Server error',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 

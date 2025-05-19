@@ -1,6 +1,8 @@
 import { DeleteArticleUseCase } from 'application/use-cases/articles/DeleteArticleUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import articleRepository from 'infrastructure/database/repositories/articles';
+import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, simpleSuccessResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class DeleteArticleController extends OpenAPIRoute {
@@ -18,44 +20,26 @@ export class DeleteArticleController extends OpenAPIRoute {
                 description: 'Article deleted successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool()
-                        })
+                        schema: z.object(simpleSuccessResponse)
                     }
                 }
             },
-            '404': {
-                description: 'Article not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteArticleUseCase = new DeleteArticleUseCase(articleRepository);
+        const deleteArticleUseCase = new DeleteArticleUseCase(articleRepository);
 
-            await deleteArticleUseCase.execute(id);
+        await deleteArticleUseCase.execute(id);
 
-            return {
-                success: true
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Article deletion failed'
-            };
-        }
+        return {
+            success: true
+        };
     }
 }

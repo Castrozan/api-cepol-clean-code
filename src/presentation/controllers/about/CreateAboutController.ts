@@ -1,7 +1,8 @@
 import { CreateAboutUseCase } from 'application/use-cases/about/CreateAboutUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class CreateAboutController extends OpenAPIRoute {
@@ -35,52 +36,32 @@ export class CreateAboutController extends OpenAPIRoute {
                 description: 'About created successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                bodyText: z.string().nullable(),
-                                secondText: z.string().nullable(),
-                                images: z
-                                    .array(
-                                        z.object({
-                                            id: z.number(),
-                                            aboutId: z.number(),
-                                            url: z.string().nullable(),
-                                            title: z.string().nullable(),
-                                            description: z.string().nullable()
-                                        })
-                                    )
-                                    .nullable(),
-                                createdAt: z.string(),
-                                updatedAt: z.string()
-                            })
-                        })
+                        schema: z.object(
+                            successResponse(
+                                z.object({
+                                    id: z.number(),
+                                    bodyText: z.string().nullable(),
+                                    secondText: z.string().nullable(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number(),
+                                                aboutId: z.number(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable()
+                                            })
+                                        )
+                                        .nullable(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string()
+                                })
+                            )
+                        )
                     }
                 }
             },
-            '400': {
-                description: 'Invalid input',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '500': {
-                description: 'Server error',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 

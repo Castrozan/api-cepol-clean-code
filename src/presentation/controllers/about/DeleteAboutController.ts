@@ -1,7 +1,8 @@
 import { DeleteAboutUseCase } from 'application/use-cases/about/DeleteAboutUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, simpleSuccessResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class DeleteAboutController extends OpenAPIRoute {
@@ -19,34 +20,11 @@ export class DeleteAboutController extends OpenAPIRoute {
                 description: 'About deleted successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool()
-                        })
+                        schema: z.object(simpleSuccessResponse)
                     }
                 }
             },
-            '404': {
-                description: 'About not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '500': {
-                description: 'Server error',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 

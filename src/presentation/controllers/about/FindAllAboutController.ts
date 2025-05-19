@@ -1,7 +1,8 @@
 import { FindAllAboutsUseCase } from 'application/use-cases/about/FindAllAboutUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class FindAllAboutController extends OpenAPIRoute {
@@ -13,68 +14,48 @@ export class FindAllAboutController extends OpenAPIRoute {
                 description: 'List of abouts retrieved successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            result: z.array(
-                                z.object({
-                                    id: z.number(),
-                                    title: z.string(),
-                                    description: z.string().nullable(),
-                                    bodyText: z.string(),
-                                    secondText: z.string(),
-                                    createdAt: z.string(),
-                                    updatedAt: z.string(),
-                                    professionalId: z.number().nullable(),
-                                    author: z.string().nullable(),
-                                    published: z.string().nullable(),
-                                    images: z
-                                        .array(
-                                            z.object({
-                                                id: z.number().nullable(),
-                                                researchId: z.number().nullable(),
-                                                url: z.string().nullable(),
-                                                title: z.string().nullable(),
-                                                description: z.string().nullable()
+                        schema: z.object(
+                            successResponse(
+                                z.array(
+                                    z.object({
+                                        id: z.number(),
+                                        title: z.string(),
+                                        description: z.string().nullable(),
+                                        bodyText: z.string(),
+                                        secondText: z.string(),
+                                        createdAt: z.string(),
+                                        updatedAt: z.string(),
+                                        professionalId: z.number().nullable(),
+                                        author: z.string().nullable(),
+                                        published: z.string().nullable(),
+                                        images: z
+                                            .array(
+                                                z.object({
+                                                    id: z.number().nullable(),
+                                                    researchId: z.number().nullable(),
+                                                    url: z.string().nullable(),
+                                                    title: z.string().nullable(),
+                                                    description: z.string().nullable()
+                                                })
+                                            )
+                                            .nullable(),
+                                        professional: z
+                                            .object({
+                                                id: z.number(),
+                                                name: z.string(),
+                                                email: z.string(),
+                                                password: z.string(),
+                                                role: z.string()
                                             })
-                                        )
-                                        .nullable(),
-                                    professional: z
-                                        .object({
-                                            id: z.number(),
-                                            name: z.string(),
-                                            email: z.string(),
-                                            password: z.string(),
-                                            role: z.string()
-                                        })
-                                        .nullable()
-                                })
+                                            .nullable()
+                                    })
+                                )
                             )
-                        })
+                        )
                     }
                 }
             },
-            '400': {
-                description: 'Failed to retrieve abouts',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '500': {
-                description: 'Server error',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 

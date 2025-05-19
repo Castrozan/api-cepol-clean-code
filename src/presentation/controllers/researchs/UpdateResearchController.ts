@@ -1,6 +1,8 @@
 import { UpdateResearchUseCase } from 'application/use-cases/researchs/UpdateResearchUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute } from 'chanfana';
 import researchRepository from 'infrastructure/database/repositories/researchs';
+import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
 
 export class UpdateResearchController extends OpenAPIRoute {
@@ -43,109 +45,83 @@ export class UpdateResearchController extends OpenAPIRoute {
                 description: 'Research updated successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                title: z.string(),
-                                description: z.string().nullable(),
-                                bodyText: z.string().nullable(),
-                                secondText: z.string().nullable(),
-                                professionalId: z.number().nullable(),
-                                images: z
-                                    .array(
-                                        z.object({
-                                            id: z.number().nullable(),
-                                            url: z.string().nullable(),
-                                            title: z.string().nullable(),
-                                            description: z.string().nullable()
-                                        })
-                                    )
-                                    .nullable(),
-                                createdAt: z.string(),
-                                updatedAt: z.string()
-                            })
-                        })
+                        schema: z.object(
+                            successResponse(
+                                z.object({
+                                    id: z.number(),
+                                    title: z.string(),
+                                    description: z.string().nullable(),
+                                    bodyText: z.string().nullable(),
+                                    secondText: z.string().nullable(),
+                                    professionalId: z.number().nullable(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number().nullable(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable()
+                                            })
+                                        )
+                                        .nullable(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string()
+                                })
+                            )
+                        )
                     }
                 }
             },
-            '400': {
-                description: 'Invalid input',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            },
-            '404': {
-                description: 'Research not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string()
-                        })
-                    }
-                }
-            }
+            ...errorResponses
         }
     };
 
+    @withErrorHandling
     async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, title, description, bodyText, secondText, professionalId, images } = data.body;
 
-        try {
-            const updateResearchUseCase = new UpdateResearchUseCase(researchRepository);
+        const updateResearchUseCase = new UpdateResearchUseCase(researchRepository);
 
-            const research = await updateResearchUseCase.execute({
-                id,
-                title,
-                description,
-                bodyText,
-                secondText,
-                professionalId,
-                images: images
-                    ? images.map((image) => ({
+        const research = await updateResearchUseCase.execute({
+            id,
+            title,
+            description,
+            bodyText,
+            secondText,
+            professionalId,
+            images: images
+                ? images.map((image) => ({
+                      id: image.id,
+                      url: image.url,
+                      title: image.title,
+                      description: image.description
+                  }))
+                : null
+        });
+
+        return {
+            success: true,
+            result: {
+                id: research.id,
+                title: research.title,
+                description: research.description,
+                bodyText: research.bodyText,
+                secondText: research.secondText,
+                professionalId: research.professionalId,
+                images: research.image
+                    ? research.image.map((image) => ({
                           id: image.id,
+                          researchId: image.researchId,
                           url: image.url,
                           title: image.title,
                           description: image.description
                       }))
-                    : null
-            });
-
-            return {
-                success: true,
-                result: {
-                    id: research.id,
-                    title: research.title,
-                    description: research.description,
-                    bodyText: research.bodyText,
-                    secondText: research.secondText,
-                    professionalId: research.professionalId,
-                    images: research.image
-                        ? research.image.map((image) => ({
-                              id: image.id,
-                              researchId: image.researchId,
-                              url: image.url,
-                              title: image.title,
-                              description: image.description
-                          }))
-                        : null,
-                    createdAt: research.createdAt.toISOString(),
-                    updatedAt: research.updatedAt.toISOString()
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Research update failed'
-            };
-        }
+                    : null,
+                createdAt: research.createdAt.toISOString(),
+                updatedAt: research.updatedAt.toISOString()
+            }
+        };
     }
 }
