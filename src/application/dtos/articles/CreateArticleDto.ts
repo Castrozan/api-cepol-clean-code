@@ -1,4 +1,4 @@
-import { CreateArticleImageDto } from "./CreateArticleImageDto";
+import { CreateArticleImageDto } from './CreateArticleImageDto';
 
 export class CreateArticleDto {
     title: string;

@@ -1,9 +1,7 @@
 import { FindByIdResearchUseCase } from 'application/use-cases/researchs/FindByIdResearchUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { ResearchRepository } from 'infrastructure/database/repositories/researchs/ResearchRepository';
+import researchRepository from 'infrastructure/database/repositories/researchs';
 import { z } from 'zod';
-
-const researchRepository = new ResearchRepository();
 
 export class FindByIdResearchController extends OpenAPIRoute {
     schema = {
@@ -15,10 +13,10 @@ export class FindByIdResearchController extends OpenAPIRoute {
                 in: 'path' as const,
                 required: true,
                 schema: {
-                    type: 'integer' as const,
+                    type: 'integer' as const
                 },
-                description: 'ID of the research to retrieve',
-            },
+                description: 'ID of the research to retrieve'
+            }
         ],
         responses: {
             '200': {
@@ -27,31 +25,39 @@ export class FindByIdResearchController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                title: z.string(),
-                                description: z.string(),
-                                bodyText: z.string(),
-                                secondText: z.string(),
-                                createdAt: z.string(),
-                                updatedAt: z.string(),
-                                professionalId: z.number().nullable(),
-                                images: z.array(z.object({
-                                    id: z.number().nullable(),
-                                    researchId: z.number().nullable(),
-                                    url: z.string().nullable(),
-                                    title: z.string().nullable(),
-                                    description: z.string().nullable(),
-                                })).nullable(),
-                                professional: z.object({
+                            result: z
+                                .object({
                                     id: z.number(),
-                                    name: z.string(),
-                                    role: z.string(),
-                                }).nullable(),
-                            }).nullable(),
-                        }),
-                    },
-                },
+                                    title: z.string(),
+                                    description: z.string(),
+                                    bodyText: z.string(),
+                                    secondText: z.string(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string(),
+                                    professionalId: z.number().nullable(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number().nullable(),
+                                                researchId: z.number().nullable(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable()
+                                            })
+                                        )
+                                        .nullable(),
+                                    professional: z
+                                        .object({
+                                            id: z.number(),
+                                            name: z.string(),
+                                            role: z.string()
+                                        })
+                                        .nullable()
+                                })
+                                .nullable()
+                        })
+                    }
+                }
             },
             '400': {
                 description: 'Failed to retrieve research',
@@ -59,15 +65,15 @@ export class FindByIdResearchController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
-            },
-        },
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        }
     };
 
-    async handle(req: { params: { id: number } }) {
+    async handle(req: { params: { id: number } }): Promise<object> {
         try {
             const { id } = req.params;
             const findByIdResearchUseCase = new FindByIdResearchUseCase(researchRepository);
@@ -76,7 +82,7 @@ export class FindByIdResearchController extends OpenAPIRoute {
             if (!research) {
                 return {
                     success: false,
-                    message: 'Research not found',
+                    message: 'Research not found'
                 };
             }
 
@@ -91,24 +97,28 @@ export class FindByIdResearchController extends OpenAPIRoute {
                     createdAt: research.createdAt.toISOString(),
                     updatedAt: research.updatedAt.toISOString(),
                     professionalId: research.professionalId,
-                    images: research.image ? research.image.map(image => ({
-                        id: image.id,
-                        researchId: image.researchId,
-                        url: image.url,
-                        title: image.title,
-                        description: image.description,
-                    })) : null,
-                    professional: research.professional ? {
-                        id: research.professional.id,
-                        name: research.professional.name,
-                        role: research.professional.role,
-                    } : null,
-                },
+                    images: research.image
+                        ? research.image.map((image) => ({
+                              id: image.id,
+                              researchId: image.researchId,
+                              url: image.url,
+                              title: image.title,
+                              description: image.description
+                          }))
+                        : null,
+                    professional: research.professional
+                        ? {
+                              id: research.professional.id,
+                              name: research.professional.name,
+                              role: research.professional.role
+                          }
+                        : null
+                }
             };
         } catch (error) {
             return {
                 success: false,
-                message: error.message || 'Failed to retrieve research',
+                message: error.message || 'Failed to retrieve research'
             };
         }
     }

@@ -1,4 +1,4 @@
-import { Professional } from "../../entities/professionals/Professional";
+import { Professional } from '../../entities/professionals/Professional';
 
 export interface IProfessionalRepository {
     create(article: Partial<Professional>): Promise<Professional>;

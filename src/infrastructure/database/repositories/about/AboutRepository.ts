@@ -2,12 +2,27 @@ import { createClient } from '@supabase/supabase-js';
 import { About } from 'domain/entities/about/About';
 import { AboutImage } from 'domain/entities/about/AboutImage';
 import { IAboutRepository } from 'domain/interfaces/about/IAboutRepository';
-import { SUPABASE_KEY, SUPABASE_URL } from '../../../../env';
+import config from '../../../../config/index.js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+
+// Database entity types
+interface DbAbout {
+    id: number;
+    bodyText: string;
+    secondText: string;
+    createdAt: string;
+}
+
+interface DbAboutImage {
+    id: number;
+    aboutId: number;
+    url: string;
+    title: string;
+    description: string;
+}
 
 export class AboutRepository implements IAboutRepository {
-
     async findById(id: number): Promise<About | null> {
         const { data: abouts, error } = await supabase
             .from('About')
@@ -26,70 +41,79 @@ export class AboutRepository implements IAboutRepository {
         }
 
         const { data: images, error: errorImages } = await supabase
-            .from("AboutImage")
-            .select("*")
-            .eq("aboutId", id);
+            .from('AboutImage')
+            .select('*')
+            .eq('aboutId', id);
 
         if (errorImages) {
             console.error(errorImages);
             return null;
         }
 
-        return abouts ? new About(
-            abouts.id,
-            abouts.bodyText,
-            abouts.secondText,
-            new Date(abouts.createdAt),
-            images ? images.map((image: any) =>
-                new AboutImage(
-                    image.id,
-                    image.aboutId,
-                    image.url,
-                    image.title,
-                    image.description
-                )
-            ) : null
-        ) : null;
+        return abouts
+            ? new About(
+                  abouts.id,
+                  abouts.bodyText,
+                  abouts.secondText,
+                  new Date(abouts.createdAt),
+                  images
+                      ? images.map(
+                            (image: DbAboutImage) =>
+                                new AboutImage(
+                                    image.id,
+                                    image.aboutId,
+                                    image.url,
+                                    image.title,
+                                    image.description
+                                )
+                        )
+                      : null
+              )
+            : null;
     }
 
     async findAll(): Promise<About[]> {
-        const { data: abouts, error } = await supabase
-            .from('About')
-            .select('*');
+        const { data: abouts, error } = await supabase.from('About').select('*');
 
         if (error) {
             console.error(error);
             return [];
         }
 
-        const aboutIds = abouts.map(about => about.id);
+        const aboutIds = abouts.map((about) => about.id);
 
         const { data: images, error: errorImages } = await supabase
-            .from("AboutImage")
-            .select("*")
-            .in("aboutId", aboutIds);
+            .from('AboutImage')
+            .select('*')
+            .in('aboutId', aboutIds);
 
         if (errorImages && errorImages !== null) {
             console.error(errorImages);
             return [];
         }
 
-        return abouts.map((about: any) =>
-            new About(
-                about.id,
-                about.bodyText,
-                about.secondText,
-                new Date(about.createdAt),
-                images ? images.filter((image: any) => image.aboutId === about.id).map((image: any) =>
-                    new AboutImage(
-                        image.id,
-                        image.aboutId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
-                ) : null
-            )
+        return abouts.map(
+            (about: DbAbout) =>
+                new About(
+                    about.id,
+                    about.bodyText,
+                    about.secondText,
+                    new Date(about.createdAt),
+                    images
+                        ? images
+                              .filter((image: DbAboutImage) => image.aboutId === about.id)
+                              .map(
+                                  (image: DbAboutImage) =>
+                                      new AboutImage(
+                                          image.id,
+                                          image.aboutId,
+                                          image.url,
+                                          image.title,
+                                          image.description
+                                      )
+                              )
+                        : null
+                )
         );
     }
 
@@ -100,7 +124,7 @@ export class AboutRepository implements IAboutRepository {
                 {
                     bodyText: about.bodyText,
                     secondText: about.secondText,
-                    createdAt: new Date(),
+                    createdAt: new Date()
                 }
             ])
             .select()
@@ -112,14 +136,19 @@ export class AboutRepository implements IAboutRepository {
         }
 
         if (about.images) {
-            const { data: savedImages, error: errorImages }: { data: AboutImage[] | null, error: any } = await supabase
+            const {
+                data: savedImages,
+                error: errorImages
+            }: { data: DbAboutImage[] | null; error: unknown } = await supabase
                 .from('AboutImage')
-                .insert(about.images.map(image => ({
-                    aboutId: savedAbout.id,
-                    url: image.url,
-                    title: image.title,
-                    description: image.description,
-                })))
+                .insert(
+                    about.images.map((image) => ({
+                        aboutId: savedAbout.id,
+                        url: image.url,
+                        title: image.title,
+                        description: image.description
+                    }))
+                )
                 .select();
 
             if (!savedImages || errorImages !== null) {
@@ -132,14 +161,15 @@ export class AboutRepository implements IAboutRepository {
                 savedAbout.bodyText,
                 savedAbout.secondText,
                 new Date(savedAbout.createdAt),
-                (Array.isArray(savedImages) ? savedImages : []).map((image: any) =>
-                    new AboutImage(
-                        image.id,
-                        image.aboutId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
+                (Array.isArray(savedImages) ? savedImages : []).map(
+                    (image: DbAboutImage) =>
+                        new AboutImage(
+                            image.id,
+                            image.aboutId,
+                            image.url,
+                            image.title,
+                            image.description
+                        )
                 )
             );
         }
@@ -165,7 +195,6 @@ export class AboutRepository implements IAboutRepository {
             .select()
             .single<About>();
 
-
         if (error !== null) {
             console.error(error);
             throw new Error('Failed to update about');
@@ -182,11 +211,11 @@ export class AboutRepository implements IAboutRepository {
                 throw new Error('Failed to fetch existing about images');
             }
 
-            const existingImageIds = existingImages.map((image: any) => image.id);
+            const existingImageIds = existingImages.map((image: DbAboutImage) => image.id);
 
-            const newImageIds = about.images ? about.images.map(image => image.id) : [];
+            const newImageIds = about.images ? about.images.map((image) => image.id) : [];
 
-            let savedImages: AboutImage[] = [];
+            const savedImages: AboutImage[] = [];
             for (const image of about.images) {
                 if (image.id && existingImageIds.includes(image.id)) {
                     const { data: updatedImage, error: updateError } = await supabase
@@ -194,7 +223,7 @@ export class AboutRepository implements IAboutRepository {
                         .update({
                             url: image.url,
                             title: image.title,
-                            description: image.description,
+                            description: image.description
                         })
                         .eq('id', image.id)
                         .select()
@@ -204,16 +233,19 @@ export class AboutRepository implements IAboutRepository {
                         console.error(updateError);
                         throw new Error('Failed to update about image');
                     }
-                    
+
                     savedImages.push(updatedImage);
                 } else {
-                    const { data: insertedImage, error: errorImages }: { data: AboutImage[] | null, error: any } = await supabase
+                    const {
+                        data: insertedImage,
+                        error: errorImages
+                    }: { data: DbAboutImage[] | null; error: unknown } = await supabase
                         .from('AboutImage')
                         .insert({
                             aboutId: about.id,
                             url: image.url,
                             title: image.title,
-                            description: image.description,
+                            description: image.description
                         })
                         .select();
 
@@ -226,7 +258,7 @@ export class AboutRepository implements IAboutRepository {
             }
 
             // Delete removed images
-            const imagesToDelete = existingImageIds.filter(id => !newImageIds.includes(id));
+            const imagesToDelete = existingImageIds.filter((id) => !newImageIds.includes(id));
 
             if (imagesToDelete.length > 0) {
                 const { error: deleteError } = await supabase
@@ -245,14 +277,15 @@ export class AboutRepository implements IAboutRepository {
                 updatedAbout.bodyText,
                 updatedAbout.secondText,
                 new Date(updatedAbout.createdAt),
-                (Array.isArray(savedImages) ? savedImages : []).map((image: any) =>
-                    new AboutImage(
-                        image.id,
-                        image.aboutId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
+                (Array.isArray(savedImages) ? savedImages : []).map(
+                    (image: DbAboutImage) =>
+                        new AboutImage(
+                            image.id,
+                            image.aboutId,
+                            image.url,
+                            image.title,
+                            image.description
+                        )
                 )
             );
         }
@@ -284,25 +317,19 @@ export class AboutRepository implements IAboutRepository {
             .eq('id', id)
             .single();
 
-        if (fetchError || !about) {
-            console.error(fetchError);
+        if (deleteError || !about) {
+            console.error(deleteError);
             throw new Error('About does not exist');
         }
 
-        const { error: errorImages } = await supabase
-            .from('AboutImage')
-            .delete()
-            .eq('aboutId', id);
+        const { error: errorImages } = await supabase.from('AboutImage').delete().eq('aboutId', id);
 
         if (errorImages) {
             console.error(errorImages);
             throw new Error('Failed to delete about images');
         }
 
-        const { error: errorAbout } = await supabase
-            .from('About')
-            .delete()
-            .eq('id', id);
+        const { error: errorAbout } = await supabase.from('About').delete().eq('id', id);
 
         if (errorAbout) {
             console.error(errorAbout);

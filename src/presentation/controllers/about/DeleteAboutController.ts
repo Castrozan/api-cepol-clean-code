@@ -1,9 +1,9 @@
 import { DeleteAboutUseCase } from 'application/use-cases/about/DeleteAboutUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
-import { AboutRepository } from 'infrastructure/database/repositories/about/AboutRepository';
+import { OpenAPIRoute } from 'chanfana';
+import aboutRepository from 'infrastructure/database/repositories/about';
+import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, simpleSuccessResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
-
-const aboutRepository = new AboutRepository();
 
 export class DeleteAboutController extends OpenAPIRoute {
     schema = {
@@ -12,52 +12,34 @@ export class DeleteAboutController extends OpenAPIRoute {
         security: [{ bearerAuth: [] }],
         request: {
             params: z.object({
-                id: z.number().min(1, { message: 'ID is required' }),
-            }),
+                id: z.number().min(1, { message: 'ID is required' })
+            })
         },
         responses: {
             '200': {
                 description: 'About deleted successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                        }),
-                    },
-                },
+                        schema: z.object(simpleSuccessResponse)
+                    }
+                }
             },
-            '404': {
-                description: 'About not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
-            },
-        },
+            ...errorResponses
+        }
     };
 
-    async handle(c) {
+    @withErrorHandling
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteAboutUseCase = new DeleteAboutUseCase(aboutRepository);
+        const deleteAboutUseCase = new DeleteAboutUseCase(aboutRepository);
 
-            await deleteAboutUseCase.execute(id);
+        await deleteAboutUseCase.execute(id);
 
-            return {
-                success: true,
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'About deletion failed',
-            };
-        }
+        return {
+            success: true
+        };
     }
 }

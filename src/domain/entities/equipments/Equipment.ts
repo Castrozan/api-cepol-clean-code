@@ -10,22 +10,22 @@ export class Equipment {
         this.validate();
     }
 
-    private validate() {
+    private validate(): void {
         if (!this.name || this.name.trim().length === 0) {
-            throw new Error("O nome é obrigatório.");
+            throw new Error('O nome é obrigatório.');
         }
-        if (this.imageUrl && !this.imageUrl.startsWith("https://")) {
-            throw new Error("A URL da imagem deve ser válida e começar com https://.");
+        if (this.imageUrl && !this.imageUrl.startsWith('https://')) {
+            throw new Error('A URL da imagem deve ser válida e começar com https://.');
         }
     }
 
-    public updateDescription(newDescription: string | null) {
+    public updateDescription(newDescription: string | null): void {
         this.description = newDescription;
     }
 
-    public updateImageUrl(newImageUrl: string | null) {
-        if (newImageUrl && !newImageUrl.startsWith("http://")) {
-            throw new Error("A nova URL da imagem deve ser válida e começar com https://.");
+    public updateImageUrl(newImageUrl: string | null): void {
+        if (newImageUrl && !newImageUrl.startsWith('http://')) {
+            throw new Error('A nova URL da imagem deve ser válida e começar com https://.');
         }
         this.imageUrl = newImageUrl;
     }

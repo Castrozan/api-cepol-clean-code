@@ -1,9 +1,8 @@
 import { UpdateEquipmentUseCase } from 'application/use-cases/equipments/UpdateEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { EquipmentRepository } from 'infrastructure/database/repositories/equipments/EquipmentRepository';
+import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
-
-const equipmentRepository = new EquipmentRepository();
 
 export class UpdateEquipmentController extends OpenAPIRoute {
     schema = {
@@ -19,11 +18,11 @@ export class UpdateEquipmentController extends OpenAPIRoute {
                             name: z.string().min(1, { message: 'Name is required' }),
                             description: z.string().optional(),
                             imageUrl: z.string().url({ message: 'Invalid URL' }).optional(),
-                            type: z.string().optional(),
-                        }),
-                    },
-                },
-            },
+                            type: z.string().optional()
+                        })
+                    }
+                }
+            }
         },
         responses: {
             '200': {
@@ -39,11 +38,11 @@ export class UpdateEquipmentController extends OpenAPIRoute {
                                 imageUrl: z.string().nullable(),
                                 createdAt: z.string(),
                                 updatedAt: z.string(),
-                                type: z.string().nullable(),
-                            }),
-                        }),
-                    },
-                },
+                                type: z.string().nullable()
+                            })
+                        })
+                    }
+                }
             },
             '400': {
                 description: 'Invalid input',
@@ -51,10 +50,10 @@ export class UpdateEquipmentController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
+                            message: z.string()
+                        })
+                    }
+                }
             },
             '404': {
                 description: 'Equipment not found',
@@ -62,41 +61,51 @@ export class UpdateEquipmentController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
+                            message: z.string()
+                        })
+                    }
+                }
             },
-        },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        }
     };
 
-    async handle(c) {
+    @withErrorHandling
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id, name, description, imageUrl, type } = data.body;
 
-        try {
-            const updateEquipmentUseCase = new UpdateEquipmentUseCase(equipmentRepository);
+        const updateEquipmentUseCase = new UpdateEquipmentUseCase(equipmentRepository);
 
-            const equipment = await updateEquipmentUseCase.execute({ id, name, description, imageUrl, type });
+        const equipment = await updateEquipmentUseCase.execute({
+            id,
+            name,
+            description,
+            imageUrl,
+            type
+        });
 
-            return {
-                success: true,
-                result: {
-                    id: equipment.id,
-                    name: equipment.name,
-                    description: equipment.description,
-                    imageUrl: equipment.imageUrl,
-                    createdAt: equipment.createdAt.toISOString(),
-                    type: equipment.type,
-
-                },
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Equipment update failed',
-            };
-        }
+        return {
+            success: true,
+            result: {
+                id: equipment.id,
+                name: equipment.name,
+                description: equipment.description,
+                imageUrl: equipment.imageUrl,
+                createdAt: equipment.createdAt.toISOString(),
+                type: equipment.type
+            }
+        };
     }
 }

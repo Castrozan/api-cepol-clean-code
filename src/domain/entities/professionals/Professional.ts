@@ -7,7 +7,5 @@ export class Professional {
         public imageUrl: string | null,
         public createdAt: Date,
         public hierarchy: number
-    ) {
-
-    }
+    ) {}
 }

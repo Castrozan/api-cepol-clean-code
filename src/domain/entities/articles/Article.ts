@@ -1,5 +1,5 @@
-import { Professional } from "../professionals/Professional";
-import { ArticleImage } from "./ArticleImage";
+import { Professional } from '../professionals/Professional';
+import { ArticleImage } from './ArticleImage';
 
 export class Article {
     constructor(
@@ -14,8 +14,6 @@ export class Article {
         public author: string | null,
         public published: string | null,
         public images: ArticleImage[] | null,
-        public professional: Professional | null,
-    ) {
-    }
-
+        public professional: Professional | null
+    ) {}
 }

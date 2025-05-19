@@ -1,5 +1,5 @@
-import { About } from "domain/entities/about/About";
-import { AboutImage } from "domain/entities/about/AboutImage";
+import { About } from 'domain/entities/about/About';
+import { AboutImage } from 'domain/entities/about/AboutImage';
 
 export interface IAboutRepository {
     create(about: Partial<About & { images?: Partial<AboutImage>[] }>): Promise<About>;

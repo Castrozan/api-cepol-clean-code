@@ -1,9 +1,8 @@
 import { FindByIdArticleUseCase } from 'application/use-cases/articles/FindByIdArticleUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { ArticleRepository } from 'infrastructure/database/repositories/articles/ArticleRepository';
+import articleRepository from 'infrastructure/database/repositories/articles';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
-
-const articleRepository = new ArticleRepository();
 
 export class FindByIdArticleController extends OpenAPIRoute {
     schema = {
@@ -15,10 +14,10 @@ export class FindByIdArticleController extends OpenAPIRoute {
                 in: 'path' as const,
                 required: true,
                 schema: {
-                    type: 'integer' as const,
+                    type: 'integer' as const
                 },
-                description: 'ID of the article to retrieve',
-            },
+                description: 'ID of the article to retrieve'
+            }
         ],
         responses: {
             '200': {
@@ -27,35 +26,43 @@ export class FindByIdArticleController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            result: z.object({
-                                id: z.number(),
-                                title: z.string(),
-                                description: z.string(),
-                                bodyText: z.string(),
-                                secondText: z.string(),
-                                createdAt: z.string(),
-                                updatedAt: z.string(),
-                                professionalId: z.number().nullable(),
-                                author: z.string().nullable(),
-                                published: z.string().nullable(),
-                                images: z.array(z.object({
-                                    id: z.number().nullable(),
-                                    researchId: z.number().nullable(),
-                                    url: z.string().nullable(),
-                                    title: z.string().nullable(),
-                                    description: z.string().nullable(),
-                                })).nullable(),
-                                professional: z.object({
+                            result: z
+                                .object({
                                     id: z.number(),
-                                    name: z.string(),
-                                    email: z.string(),
-                                    password: z.string(),
-                                    role: z.string(),
-                                }).nullable(),
-                            }).nullable(),
-                        }),
-                    },
-                },
+                                    title: z.string(),
+                                    description: z.string(),
+                                    bodyText: z.string(),
+                                    secondText: z.string(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string(),
+                                    professionalId: z.number().nullable(),
+                                    author: z.string().nullable(),
+                                    published: z.string().nullable(),
+                                    images: z
+                                        .array(
+                                            z.object({
+                                                id: z.number().nullable(),
+                                                researchId: z.number().nullable(),
+                                                url: z.string().nullable(),
+                                                title: z.string().nullable(),
+                                                description: z.string().nullable()
+                                            })
+                                        )
+                                        .nullable(),
+                                    professional: z
+                                        .object({
+                                            id: z.number(),
+                                            name: z.string(),
+                                            email: z.string(),
+                                            password: z.string(),
+                                            role: z.string()
+                                        })
+                                        .nullable()
+                                })
+                                .nullable()
+                        })
+                    }
+                }
             },
             '400': {
                 description: 'Failed to retrieve article',
@@ -63,56 +70,63 @@ export class FindByIdArticleController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
+                            message: z.string()
+                        })
+                    }
+                }
             },
-        },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        }
     };
 
-    async handle(req: { params: { id: number } }) {
-        try {
-            const { id } = req.params;
+    @withErrorHandling
+    async handle(req: { params: { id: number } }): Promise<object> {
+        const { id } = req.params;
 
-            const findByIdArticleUseCase = new FindByIdArticleUseCase(articleRepository);
-            const article = await findByIdArticleUseCase.execute(id);
+        const findByIdArticleUseCase = new FindByIdArticleUseCase(articleRepository);
+        const article = await findByIdArticleUseCase.execute(id);
 
-            if (!article) {
-                return {
-                    success: false,
-                    message: 'Article not found',
-                };
-            }
-
-            return {
-                success: true,
-                result: {
-                    id: article.id,
-                    title: article.title,
-                    description: article.description,
-                    bodyText: article.bodyText,
-                    secondText: article.secondText,
-                    createdAt: article.createdAt.toISOString(),
-                    updatedAt: article.updatedAt.toISOString(),
-                    professionalId: article.professionalId,
-                    author: article.author,
-                    published: article.published,
-                    images: article.images ? article.images.map(image => ({
-                        id: image.id,
-                        articleId: image.articleId,
-                        url: image.url,
-                        title: image.title,
-                        description: image.description,
-                    })) : null,
-                    professional: article.professional ? article.professional : null,
-                },
-            };
-        } catch (error) {
+        if (!article) {
             return {
                 success: false,
-                message: error.message || 'Failed to retrieve article',
+                message: 'Article not found'
             };
         }
+
+        return {
+            success: true,
+            result: {
+                id: article.id,
+                title: article.title,
+                description: article.description,
+                bodyText: article.bodyText,
+                secondText: article.secondText,
+                createdAt: article.createdAt.toISOString(),
+                updatedAt: article.updatedAt.toISOString(),
+                professionalId: article.professionalId,
+                author: article.author,
+                published: article.published,
+                images: article.images
+                    ? article.images.map((image) => ({
+                          id: image.id,
+                          articleId: image.articleId,
+                          url: image.url,
+                          title: image.title,
+                          description: image.description
+                      }))
+                    : null,
+                professional: article.professional ? article.professional : null
+            }
+        };
     }
 }

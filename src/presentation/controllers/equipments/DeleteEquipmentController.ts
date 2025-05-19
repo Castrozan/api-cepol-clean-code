@@ -1,9 +1,8 @@
 import { DeleteEquipmentUseCase } from 'application/use-cases/equipments/DeleteEquipmentUseCase';
 import { Bool, OpenAPIRoute } from 'chanfana';
-import { EquipmentRepository } from 'infrastructure/database/repositories/equipments/EquipmentRepository';
+import equipmentRepository from 'infrastructure/database/repositories/equipments';
+import { withErrorHandling } from 'presentation/decorators';
 import { z } from 'zod';
-
-const equipmentRepository = new EquipmentRepository();
 
 export class DeleteEquipmentController extends OpenAPIRoute {
     schema = {
@@ -12,8 +11,8 @@ export class DeleteEquipmentController extends OpenAPIRoute {
         security: [{ bearerAuth: [] }],
         request: {
             params: z.object({
-                id: z.number().min(1, { message: 'ID is required' }),
-            }),
+                id: z.number().min(1, { message: 'ID is required' })
+            })
         },
         responses: {
             '200': {
@@ -21,10 +20,10 @@ export class DeleteEquipmentController extends OpenAPIRoute {
                 content: {
                     'application/json': {
                         schema: z.object({
-                            success: Bool(),
-                        }),
-                    },
-                },
+                            success: Bool()
+                        })
+                    }
+                }
             },
             '404': {
                 description: 'Equipment not found',
@@ -32,32 +31,37 @@ export class DeleteEquipmentController extends OpenAPIRoute {
                     'application/json': {
                         schema: z.object({
                             success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
+                            message: z.string()
+                        })
+                    }
+                }
             },
-        },
+            '500': {
+                description: 'Server error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: Bool(),
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        }
     };
 
-    async handle(c) {
+    @withErrorHandling
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteEquipmentUseCase = new DeleteEquipmentUseCase(equipmentRepository);
+        const deleteEquipmentUseCase = new DeleteEquipmentUseCase(equipmentRepository);
 
-            await deleteEquipmentUseCase.execute(id);
+        await deleteEquipmentUseCase.execute(id);
 
-            return {
-                success: true,
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Equipment deletion failed',
-            };
-        }
+        return {
+            success: true
+        };
     }
 }
