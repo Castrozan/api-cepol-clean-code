@@ -1,4 +1,4 @@
-import { Equipment } from "../../entities/equipments/Equipment";
+import { Equipment } from '../../entities/equipments/Equipment';
 
 export interface IEquipmentRepository {
     create(article: Partial<Equipment>): Promise<Equipment>;

@@ -1,7 +1,7 @@
-import { IEquipmentRepository } from "domain/interfaces/equipments/IEquipmentRepository";
+import { IEquipmentRepository } from 'domain/interfaces/equipments/IEquipmentRepository';
 
 export class DeleteEquipmentUseCase {
-    constructor(private equipmentRepository: IEquipmentRepository) { }
+    constructor(private equipmentRepository: IEquipmentRepository) {}
 
     async execute(id: number): Promise<void> {
         const equipment = await this.equipmentRepository.findById(id);
@@ -13,14 +13,3 @@ export class DeleteEquipmentUseCase {
         await this.equipmentRepository.delete(id);
     }
 }
-
-
-
-
-
-
-
-
-
-
-

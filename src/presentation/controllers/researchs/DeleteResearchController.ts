@@ -1,9 +1,9 @@
 import { DeleteResearchUseCase } from 'application/use-cases/researchs/DeleteResearchUseCase';
-import { Bool, OpenAPIRoute } from 'chanfana';
-import { ResearchRepository } from 'infrastructure/database/repositories/researchs/ResearchRepository';
+import { OpenAPIRoute } from 'chanfana';
+import researchRepository from 'infrastructure/database/repositories/researchs';
+import { withErrorHandling } from 'presentation/decorators';
+import { errorResponses, simpleSuccessResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
-
-const researchRepository = new ResearchRepository();
 
 export class DeleteResearchController extends OpenAPIRoute {
     schema = {
@@ -12,78 +12,34 @@ export class DeleteResearchController extends OpenAPIRoute {
         security: [{ bearerAuth: [] }],
         request: {
             params: z.object({
-                id: z.number().min(1, { message: 'ID is required' }),
-            }),
+                id: z.number().min(1, { message: 'ID is required' })
+            })
         },
         responses: {
             '200': {
                 description: 'Research deleted successfully',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                        }),
-                    },
-                },
+                        schema: z.object(simpleSuccessResponse)
+                    }
+                }
             },
-            '404': {
-                description: 'Research not found',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            success: Bool(),
-                            message: z.string(),
-                        }),
-                    },
-                },
-            },
-        },
+            ...errorResponses
+        }
     };
 
-    async handle(c) {
+    @withErrorHandling
+    async handle(): Promise<object> {
         const data = await this.getValidatedData<typeof this.schema>();
 
         const { id } = data.params;
 
-        try {
-            const deleteResearchUseCase = new DeleteResearchUseCase(researchRepository);
+        const deleteResearchUseCase = new DeleteResearchUseCase(researchRepository);
 
-            await deleteResearchUseCase.execute(id);
+        await deleteResearchUseCase.execute(id);
 
-            return {
-                success: true,
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Research deletion failed',
-            };
-        }
+        return {
+            success: true
+        };
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

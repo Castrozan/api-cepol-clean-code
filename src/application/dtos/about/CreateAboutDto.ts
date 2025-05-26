@@ -1,4 +1,4 @@
-import { CreateAboutImageDto } from "./CreateAboutImageDto";
+import { CreateAboutImageDto } from './CreateAboutImageDto';
 
 export class CreateAboutDto {
     bodyText: string;
@@ -6,11 +6,7 @@ export class CreateAboutDto {
     createdAt: Date;
     images: CreateAboutImageDto[] | null;
 
-    constructor(
-        bodyText: string,
-        secondText: string,
-        images: CreateAboutImageDto[] | null
-    ) {
+    constructor(bodyText: string, secondText: string, images: CreateAboutImageDto[] | null) {
         this.createdAt = new Date();
         this.bodyText = bodyText;
         this.secondText = secondText;

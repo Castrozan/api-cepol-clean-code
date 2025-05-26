@@ -1,5 +1,5 @@
-import { ArticleImage } from "domain/entities/articles/ArticleImage";
-import { Article } from "../../entities/articles/Article";
+import { ArticleImage } from 'domain/entities/articles/ArticleImage';
+import { Article } from '../../entities/articles/Article';
 
 export interface IArticleRepository {
     create(article: Partial<Article & { images?: Partial<ArticleImage>[] }>): Promise<Article>;

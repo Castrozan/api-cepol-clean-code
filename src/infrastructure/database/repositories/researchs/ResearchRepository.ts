@@ -1,19 +1,45 @@
 import { createClient } from '@supabase/supabase-js';
-import { Professional } from 'domain/entities/professionals/Professional';
 import { Research } from 'domain/entities/researchs/Research';
 import { ResearchImage } from 'domain/entities/researchs/ResearchImage';
+import { Professional } from 'domain/entities/professionals/Professional';
 import { IResearchRepository } from 'domain/interfaces/researchs/IResearchRepository';
-import { SUPABASE_KEY, SUPABASE_URL } from '../../../../env';
+import config from '../../../../config/index.js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+
+// Database entity types
+interface DbResearch {
+    id: number;
+    title: string;
+    description: string;
+    bodyText: string;
+    secondText: string;
+    createdAt: string;
+    updatedAt: string;
+    professionalId: number | null;
+}
+
+interface DbResearchImage {
+    id: number;
+    researchId: number;
+    url: string;
+    title: string;
+    description: string;
+}
+
+interface DbProfessional {
+    id: number;
+    name: string;
+    role: string;
+    bio: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    hierarchy: number;
+}
 
 export class ResearchRepository implements IResearchRepository {
     async findById(id: number): Promise<Research | null> {
-        const { data, error } = await supabase
-            .from('Research')
-            .select('*')
-            .eq('id', id)
-            .single();
+        const { data, error } = await supabase.from('Research').select('*').eq('id', id).single();
 
         if (error) {
             console.error(error);
@@ -21,9 +47,9 @@ export class ResearchRepository implements IResearchRepository {
         }
 
         const { data: images, error: errorImages } = await supabase
-            .from("ResearchImage")
-            .select("*")
-            .eq("researchId", id);
+            .from('ResearchImage')
+            .select('*')
+            .eq('researchId', id);
 
         if (errorImages) {
             console.error(errorImages);
@@ -31,63 +57,74 @@ export class ResearchRepository implements IResearchRepository {
         }
 
         const { data: professionals, error: errorProfessionals } = await supabase
-            .from("Professional")
-            .select("*")
-            .in("id", data.professionalId);
+            .from('Professional')
+            .select('*')
+            .in('id', data.professionalId);
 
         if (errorProfessionals) {
             console.error(errorProfessionals);
             return null;
         }
 
-        return data ? new Research(
-            data.id,
-            data.title,
-            data.description,
-            data.bodyText,
-            data.secondText,
-            new Date(data.createdAt),
-            new Date(data.updatedAt),
-            data.professionalId,
-            images ? images.map((image: any) =>
-                new ResearchImage(
-                    image.id,
-                    image.researchId,
-                    image.url,
-                    image.title,
-                    image.description
-                )
-            ) : null,
-            professionals ? professionals.filter((professional: any) => professional.id === data.professionalId).map((professional: any) =>
-                new Professional(
-                    professional.id,
-                    professional.name,
-                    professional.email,
-                    professional.phone,
-                    professional.avatar,
-                    professional.createdAt,
-                    professional.updatedAt,
-                )
-            )[0] : null,
-        ) : null;
+        return data
+            ? new Research(
+                  data.id,
+                  data.title,
+                  data.description,
+                  data.bodyText,
+                  data.secondText,
+                  new Date(data.createdAt),
+                  new Date(data.updatedAt),
+                  data.professionalId,
+                  images
+                      ? images.map(
+                            (image: DbResearchImage) =>
+                                new ResearchImage(
+                                    image.id,
+                                    image.researchId,
+                                    image.url,
+                                    image.title,
+                                    image.description
+                                )
+                        )
+                      : null,
+                  professionals
+                      ? professionals
+                            .filter(
+                                (professional: DbProfessional) =>
+                                    professional.id === data.professionalId
+                            )
+                            .map(
+                                (professional: DbProfessional) =>
+                                    new Professional(
+                                        professional.id,
+                                        professional.name,
+                                        professional.role,
+                                        professional.bio,
+                                        professional.imageUrl,
+                                        new Date(professional.createdAt),
+                                        professional.hierarchy
+                                    )
+                            )[0]
+                      : null
+              )
+            : null;
     }
 
     async findAll(): Promise<Research[]> {
-        const { data: researchs, error } = await supabase
-            .from('Research')
-            .select('*');
+        const { data: researchs, error } = await supabase.from('Research').select('*');
 
         if (error) {
             console.error(error);
             return [];
         }
 
-        const researchIds = researchs.map(research => research.id);
+        const researchIds = researchs.map((research) => research.id);
 
         const { data: images, error: errorImages } = await supabase
-            .from("ResearchImage")
-            .select("*")
-            .in("researchId", researchIds);
+            .from('ResearchImage')
+            .select('*')
+            .in('researchId', researchIds);
 
         if (errorImages) {
             console.error(errorImages);
@@ -95,54 +132,70 @@ export class ResearchRepository implements IResearchRepository {
         }
 
         const professionalIds = researchs
-            .map(research => research.professionalId)
-            .filter(professionalId => professionalId !== null);
+            .map((research) => research.professionalId)
+            .filter((professionalId) => professionalId !== null);
 
         const { data: professionals, error: errorProfessionals } = await supabase
-            .from("Professional")
-            .select("*")
-            .in("id", professionalIds);
+            .from('Professional')
+            .select('*')
+            .in('id', professionalIds);
 
         if (errorProfessionals) {
-            console.error("ErrorProfessionals: ", errorProfessionals);
+            console.error('ErrorProfessionals: ', errorProfessionals);
             return null;
         }
 
-        return researchs.map((research: any) =>
-            new Research(
-                research.id,
-                research.title,
-                research.description,
-                research.bodyText,
-                research.secondText,
-                new Date(research.createdAt),
-                new Date(research.updatedAt),
-                research.professionalId,
-                images ? images.filter((image: any) => image.researchId === research.id).map((image: any) =>
-                    new ResearchImage(
-                        image.id,
-                        image.researchId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
-                ) : null,
-                professionals ? professionals.filter((professional: any) => professional.id === research.professionalId).map((professional: any) =>
-                    new Professional(
-                        professional.id,
-                        professional.name,
-                        professional.email,
-                        professional.phone,
-                        professional.avatar,
-                        professional.createdAt,
-                        professional.updatedAt,
-                    )
-                )[0] : null,
-            )
+        return researchs.map(
+            (research: DbResearch) =>
+                new Research(
+                    research.id,
+                    research.title,
+                    research.description,
+                    research.bodyText,
+                    research.secondText,
+                    new Date(research.createdAt),
+                    new Date(research.updatedAt),
+                    research.professionalId,
+                    images
+                        ? images
+                              .filter((image: DbResearchImage) => image.researchId === research.id)
+                              .map(
+                                  (image: DbResearchImage) =>
+                                      new ResearchImage(
+                                          image.id,
+                                          image.researchId,
+                                          image.url,
+                                          image.title,
+                                          image.description
+                                      )
+                              )
+                        : null,
+                    professionals
+                        ? professionals
+                              .filter(
+                                  (professional: DbProfessional) =>
+                                      professional.id === research.professionalId
+                              )
+                              .map(
+                                  (professional: DbProfessional) =>
+                                      new Professional(
+                                          professional.id,
+                                          professional.name,
+                                          professional.role,
+                                          professional.bio,
+                                          professional.imageUrl,
+                                          new Date(professional.createdAt),
+                                          professional.hierarchy
+                                      )
+                              )[0]
+                        : null
+                )
         );
     }
 
-    async create(research: Partial<Research & { images?: Partial<ResearchImage>[] }>): Promise<Research> {
+    async create(
+        research: Partial<Research & { images?: Partial<ResearchImage>[] }>
+    ): Promise<Research> {
         const { data: savedResearch, error } = await supabase
             .from('Research')
             .insert([
@@ -153,7 +206,7 @@ export class ResearchRepository implements IResearchRepository {
                     secondText: research.secondText,
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                    professionalId: research.professionalId,
+                    professionalId: research.professionalId
                 }
             ])
             .select()
@@ -165,14 +218,19 @@ export class ResearchRepository implements IResearchRepository {
         }
 
         if (research.images) {
-            const { data: savedImages, error: errorImages }: { data: ResearchImage[] | null, error: any } = await supabase
+            const {
+                data: savedImages,
+                error: errorImages
+            }: { data: DbResearchImage[] | null; error: unknown } = await supabase
                 .from('ResearchImage')
-                .insert(research.images.map(image => ({
-                    researchId: savedResearch.id,
-                    url: image.url,
-                    title: image.title,
-                    description: image.description,
-                })))
+                .insert(
+                    research.images.map((image) => ({
+                        researchId: savedResearch.id,
+                        url: image.url,
+                        title: image.title,
+                        description: image.description
+                    }))
+                )
                 .select();
 
             if (!savedImages || errorImages !== null) {
@@ -189,14 +247,15 @@ export class ResearchRepository implements IResearchRepository {
                 new Date(savedResearch.createdAt),
                 new Date(savedResearch.updatedAt),
                 savedResearch.professionalId,
-                (Array.isArray(savedImages) ? savedImages : []).map((image: any) =>
-                    new ResearchImage(
-                        image.id,
-                        image.researchId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
+                (Array.isArray(savedImages) ? savedImages : []).map(
+                    (image: DbResearchImage) =>
+                        new ResearchImage(
+                            image.id,
+                            image.researchId,
+                            image.url,
+                            image.title,
+                            image.description
+                        )
                 ),
                 null
             );
@@ -215,17 +274,19 @@ export class ResearchRepository implements IResearchRepository {
             null
         );
     }
-    async update(research: Partial<Research & { images?: Partial<ResearchImage>[] }>): Promise<Research> {
+    async update(
+        research: Partial<Research & { images?: Partial<ResearchImage>[] }>
+    ): Promise<Research> {
         if (research.id === null) {
             throw new Error('Research id is required');
         }
 
-        const updateData: any = {
+        const updateData: Partial<DbResearch> = {
             title: research.title,
             description: research.description,
             bodyText: research.bodyText,
             secondText: research.secondText,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString()
         };
 
         if (research.professionalId !== undefined) {
@@ -257,15 +318,20 @@ export class ResearchRepository implements IResearchRepository {
             }
 
             // Insert new images
-            const { data: savedImages, error: errorImages }: { data: ResearchImage[] | null, error: any } = await supabase
+            const {
+                data: savedImages,
+                error: errorImages
+            }: { data: DbResearchImage[] | null; error: unknown } = await supabase
                 .from('ResearchImage')
-                .insert(research.images.map(image => ({
-                    researchId: research.id,
-                    url: image.url,
-                    title: image.title,
-                    description: image.description,
-                })))
-                .select(); // <-- Adicionado o .select() aqui
+                .insert(
+                    research.images.map((image) => ({
+                        researchId: research.id,
+                        url: image.url,
+                        title: image.title,
+                        description: image.description
+                    }))
+                )
+                .select();
             if (!savedImages || errorImages !== null) {
                 console.error(errorImages);
                 throw new Error('Failed to update research images');
@@ -280,14 +346,15 @@ export class ResearchRepository implements IResearchRepository {
                 new Date(updatedResearch.createdAt),
                 new Date(updatedResearch.updatedAt),
                 updatedResearch.professionalId,
-                (Array.isArray(savedImages) ? savedImages : []).map((image: any) =>
-                    new ResearchImage(
-                        image.id,
-                        image.researchId,
-                        image.url,
-                        image.title,
-                        image.description
-                    )
+                (Array.isArray(savedImages) ? savedImages : []).map(
+                    (image: DbResearchImage) =>
+                        new ResearchImage(
+                            image.id,
+                            image.researchId,
+                            image.url,
+                            image.title,
+                            image.description
+                        )
                 ),
                 null
             );
@@ -307,10 +374,8 @@ export class ResearchRepository implements IResearchRepository {
         );
     }
 
-
     async delete(id: number): Promise<void> {
-        
-        const { data: images, error: errorImages } = await supabase
+        const { error: errorImages } = await supabase
             .from('ResearchImage')
             .delete()
             .eq('researchId', id);
@@ -320,10 +385,7 @@ export class ResearchRepository implements IResearchRepository {
             throw new Error('Failed to delete research images');
         }
 
-        const { error } = await supabase
-            .from('Research')
-            .delete()
-            .eq('id', id);
+        const { error } = await supabase.from('Research').delete().eq('id', id);
         if (error) {
             console.error(error);
             throw new Error('Failed to delete research');
