@@ -32,8 +32,8 @@ export function withErrorHandling(
 
             return {
                 success: false,
-                message: error.message || 'An unexpected error occurred',
-                statusCode: error.statusCode || 500
+                message: error.message ?? 'An unexpected error occurred',
+                statusCode: error.statusCode ?? 500
             };
         }
     };
