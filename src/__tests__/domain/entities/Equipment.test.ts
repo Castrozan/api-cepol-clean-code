@@ -50,7 +50,7 @@ describe('Equipment Entity', () => {
                 1,
                 'Bike',
                 null,
-                'https://example.com/image.jpg',
+                'example.com/image.jpg',
                 validDate,
                 null
             );
@@ -81,7 +81,7 @@ describe('Equipment Entity', () => {
     it('should throw error when updating imageUrl to invalid value', () => {
         const equipment = new Equipment(1, 'Bike', null, 'https://img.jpg', validDate, null);
         expect(() => {
-            equipment.updateImageUrl('https://img.jpg');
+            equipment.updateImageUrl('img.jpg');
         }).toThrow('A nova URL da imagem deve ser válida e começar com https://.');
     });
 });
