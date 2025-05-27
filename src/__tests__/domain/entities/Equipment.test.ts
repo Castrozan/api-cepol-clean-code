@@ -31,15 +31,28 @@ describe('Equipment Entity', () => {
     });
 
     it('should throw error if name is empty', () => {
-        expect(() => {
-            new Equipment(1, '', null, null, validDate, null);
-        }).toThrow('O nome é obrigatório.');
+        let error: Error | null = null;
+        try {
+            const equipment = new Equipment(1, '', null, null, validDate, null);
+
+            expect(equipment).toBeUndefined();
+        } catch (e) {
+            error = e as Error;
+        }
+        expect(error).not.toBeNull();
+        expect(error?.message).toBe('O nome é obrigatório.');
     });
 
     it('should throw error if imageUrl does not start with https://', () => {
-        expect(() => {
-            new Equipment(1, 'Bike', null, 'http://example.com/image.jpg', validDate, null);
-        }).toThrow('A URL da imagem deve ser válida e começar com https://.');
+        let error: Error | null = null;
+        try {
+            const equipment = new Equipment(1, 'Bike', null, 'http://example.com/image.jpg', validDate, null);
+            expect(equipment).toBeUndefined();
+        } catch (e) {
+            error = e as Error;
+        }
+        expect(error).not.toBeNull();
+        expect(error?.message).toBe('A URL da imagem deve ser válida e começar com https://.');
     });
 
     it('should update description', () => {
