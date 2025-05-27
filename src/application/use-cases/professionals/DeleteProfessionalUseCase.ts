@@ -1,7 +1,7 @@
 import { IProfessionalRepository } from 'domain/interfaces/professionals/IProfessionalRepository';
 
 export class DeleteProfessionalUseCase {
-    constructor(private ProfessionalRepository: IProfessionalRepository) {}
+    constructor(private readonly ProfessionalRepository: IProfessionalRepository) {}
 
     async execute(id: number): Promise<void> {
         const Professional = await this.ProfessionalRepository.findById(id);

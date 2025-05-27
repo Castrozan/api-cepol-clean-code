@@ -3,7 +3,7 @@ import { About } from 'domain/entities/about/About';
 import { IAboutRepository } from 'domain/interfaces/about/IAboutRepository';
 
 export class CreateAboutUseCase {
-    constructor(private aboutRepository: IAboutRepository) {}
+    constructor(private readonly aboutRepository: IAboutRepository) {}
 
     async execute(dto: CreateAboutDto): Promise<About> {
         if (!dto) {

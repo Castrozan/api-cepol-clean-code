@@ -1,7 +1,7 @@
 import { IEquipmentRepository } from 'domain/interfaces/equipments/IEquipmentRepository';
 
 export class DeleteEquipmentUseCase {
-    constructor(private equipmentRepository: IEquipmentRepository) {}
+    constructor(private readonly equipmentRepository: IEquipmentRepository) {}
 
     async execute(id: number): Promise<void> {
         const equipment = await this.equipmentRepository.findById(id);

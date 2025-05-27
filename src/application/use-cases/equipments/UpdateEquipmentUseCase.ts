@@ -3,7 +3,7 @@ import { Equipment } from 'domain/entities/equipments/Equipment';
 import { IEquipmentRepository } from 'domain/interfaces/equipments/IEquipmentRepository';
 
 export class UpdateEquipmentUseCase {
-    constructor(private equipmentRepository: IEquipmentRepository) {}
+    constructor(private readonly equipmentRepository: IEquipmentRepository) {}
 
     async execute(dto: UpdateEquipmentDto): Promise<Equipment> {
         return this.equipmentRepository.update(dto);
