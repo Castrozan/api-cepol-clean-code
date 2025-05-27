@@ -39,7 +39,8 @@ export default tseslint.config(
                 'array': true,
                 'object': true
             }],
-            'no-else-return': 'error'
+            'no-else-return': 'error',
+            'no-constant-binary-expression': 'off'
         },
     },
     {

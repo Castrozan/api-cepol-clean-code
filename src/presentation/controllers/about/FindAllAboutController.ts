@@ -1,5 +1,5 @@
 import { FindAllAboutsUseCase } from 'application/use-cases/about/FindAllAboutUseCase';
-import { extendZodWithOpenApi, OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute, extendZodWithOpenApi } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
 import { errorResponses, successResponse } from 'presentation/schemas/responses';
