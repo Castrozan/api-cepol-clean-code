@@ -1,5 +1,8 @@
 # API CEPOL
 
+![CI Pipeline](https://github.com/zanoni/api-cepol/workflows/CI%20Pipeline/badge.svg)
+![Dependency Update Check](https://github.com/zanoni/api-cepol/workflows/Dependency%20Update%20Check/badge.svg)
+
 Um backend desenvolvido para atender às necessidades de um site acadêmico, focado na persistência e gestão de informações relevantes para a comunidade.
 
 ## Integrantes
@@ -31,6 +34,41 @@ A API CEPOL oferece um conjunto de funcionalidades essenciais para a administra�
 - Supabase para persistência de dados
 - Rate limiting
 - Security headers
+
+## CI/CD Pipeline
+
+O projeto utiliza GitHub Actions para automação de CI/CD com os seguintes workflows:
+
+### 🔄 Continuous Integration (`ci.yml`)
+
+- **Execução automática**: em push para `main`/`develop` e pull requests
+- **Matriz de testes**: Node.js 18.x e 20.x
+- **Verificações incluídas**:
+  - ✅ Formatação de código (Prettier)
+  - 🔍 Linting (ESLint)
+  - 🏗️ Compilação TypeScript
+  - 🧪 Execução de testes (Jest)
+  - 📊 Cobertura de código
+  - 🔒 Auditoria de segurança
+  - 📦 Build da aplicação
+
+### Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev          # Inicia em modo desenvolvimento
+npm run build        # Compila TypeScript
+npm start            # Inicia em modo produção
+
+# Qualidade de código
+npm run lint         # Verifica linting
+npm run lint:fix     # Corrige problemas de linting
+npm run format       # Formata código
+npm run format:check # Verifica formatação
+
+# Testes
+npm test             # Executa testes
+```
 
 ## Documentação Técnica
 

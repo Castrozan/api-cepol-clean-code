@@ -26,7 +26,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": [
-      "@types/node"
+      "@types/node",
+      "jest"
     ]
   },
   "exclude": [
