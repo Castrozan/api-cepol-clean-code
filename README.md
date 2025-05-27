@@ -1,7 +1,6 @@
 # API CEPOL
 
 ![CI Pipeline](https://github.com/zanoni/api-cepol/workflows/CI%20Pipeline/badge.svg)
-![Dependency Update Check](https://github.com/zanoni/api-cepol/workflows/Dependency%20Update%20Check/badge.svg)
 
 Um backend desenvolvido para atender às necessidades de um site acadêmico, focado na persistência e gestão de informações relevantes para a comunidade.
 
@@ -37,7 +36,7 @@ A API CEPOL oferece um conjunto de funcionalidades essenciais para a administra�
 
 ## CI/CD Pipeline
 
-O projeto utiliza GitHub Actions para automação de CI/CD com os seguintes workflows:
+O projeto utiliza GitHub Actions para automação de CI/CD:
 
 ### 🔄 Continuous Integration (`ci.yml`)
 

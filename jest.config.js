@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     preset: 'ts-jest',
     testEnvironment: 'node',
     roots: ['<rootDir>/src'],
@@ -7,7 +7,9 @@ module.exports = {
         '**/*.(test|spec).+(ts|tsx|js)'
     ],
     transform: {
-        '^.+\\.(ts|tsx)$': 'ts-jest'
+        '^.+\\.(ts|tsx)$': ['ts-jest', {
+            useESM: true
+        }]
     },
     collectCoverageFrom: [
         'src/**/*.{ts,tsx}',
@@ -20,5 +22,6 @@ module.exports = {
         'text',
         'lcov',
         'html'
-    ]
+    ],
+    extensionsToTreatAsEsm: ['.ts']
 }; 
