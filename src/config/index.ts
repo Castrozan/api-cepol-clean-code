@@ -5,19 +5,13 @@ dotenv.config();
 
 const configs: Record<string, Config> = {
     development: {
-        port: Number(process.env.PORT) ?? 3000,
-        supabaseUrl: process.env.SUPABASE_URL ?? '',
-        supabaseKey: process.env.SUPABASE_KEY ?? ''
+        port: ((p) => (isNaN(p) ? 3000 : p))(Number(process.env.PORT))
     },
     test: {
-        port: Number(process.env.PORT) ?? 3000,
-        supabaseUrl: process.env.SUPABASE_URL ?? '',
-        supabaseKey: process.env.SUPABASE_KEY ?? ''
+        port: ((p) => (isNaN(p) ? 3000 : p))(Number(process.env.PORT))
     },
     production: {
-        port: Number(process.env.PORT) ?? 3000,
-        supabaseUrl: process.env.SUPABASE_URL ?? '',
-        supabaseKey: process.env.SUPABASE_KEY ?? ''
+        port: ((p) => (isNaN(p) ? 3000 : p))(Number(process.env.PORT))
     }
 };
 
