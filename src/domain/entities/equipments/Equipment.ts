@@ -23,8 +23,8 @@ export class Equipment {
         this.description = newDescription;
     }
 
-    public updateImageUrl(newImageUrl: string | null): void {
-        if (newImageUrl && !newImageUrl.startsWith('http://')) {
+    updateImageUrl(newImageUrl: string | null): void {
+        if (newImageUrl && !newImageUrl.startsWith('https://')) {
             throw new Error('A nova URL da imagem deve ser válida e começar com https://.');
         }
         this.imageUrl = newImageUrl;
