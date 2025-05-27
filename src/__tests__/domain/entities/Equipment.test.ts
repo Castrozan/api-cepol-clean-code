@@ -46,7 +46,14 @@ describe('Equipment Entity', () => {
     it('should throw error if imageUrl does not start with https://', () => {
         let error: Error | null = null;
         try {
-            const equipment = new Equipment(1, 'Bike', null, 'http://example.com/image.jpg', validDate, null);
+            const equipment = new Equipment(
+                1,
+                'Bike',
+                null,
+                'http://example.com/image.jpg',
+                validDate,
+                null
+            );
             expect(equipment).toBeUndefined();
         } catch (e) {
             error = e as Error;
