@@ -67,7 +67,70 @@ npm run format:check # Verifica formatação
 
 # Testes
 npm test             # Executa testes
+
+# Changelog e Releases
+npm run commit       # Helper para mensagens de commit convencionais
+npm run release      # Cria nova release automaticamente
+npm run release:patch # Cria release patch (1.0.0 → 1.0.1)
+npm run release:minor # Cria release minor (1.0.0 → 1.1.0)  
+npm run release:major # Cria release major (1.0.0 → 2.0.0)
+npm run release:dry-run # Simula release sem executar
 ```
+
+## 📋 Changelog e Versionamento
+
+Este projeto segue as especificações do [Conventional Commits](https://www.conventionalcommits.org/) e [Semantic Versioning](https://semver.org/). 
+
+### Convenção de Commits
+
+Todas as mensagens de commit devem seguir o formato:
+
+```
+<tipo>[escopo opcional]: <descrição>
+
+[corpo opcional]
+
+[rodapé opcional]
+```
+
+**Tipos disponíveis:**
+- `feat`: Nova funcionalidade
+- `fix`: Correção de bug
+- `docs`: Mudanças na documentação
+- `style`: Mudanças de formatação
+- `refactor`: Refatoração de código
+- `perf`: Melhoria de performance
+- `test`: Adição ou correção de testes
+- `build`: Mudanças no sistema de build
+- `ci`: Mudanças na configuração de CI
+- `chore`: Outras mudanças que não modificam src ou test
+
+**Exemplos:**
+```bash
+feat: adicionar autenticação de usuários
+fix: resolver timeout de conexão com banco
+docs: atualizar documentação da API
+```
+
+### Helper para Commits
+
+Use o helper interativo para criar commits no formato correto:
+
+```bash
+npm run commit
+```
+
+### Releases Automáticas
+
+O changelog é gerado automaticamente baseado nos commits. As releases são criadas através de:
+
+1. **GitHub Actions**: Automático em push para main com commits convencionais
+2. **Comando manual**: `npm run release`
+3. **Workflow Dispatch**: Através da interface do GitHub Actions
+
+### Visualizar Changelog
+
+Consulte o arquivo [CHANGELOG.md](./CHANGELOG.md) para ver todas as mudanças do projeto.
 
 ## Documentação Técnica
 
