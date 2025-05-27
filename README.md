@@ -40,7 +40,9 @@ O projeto utiliza GitHub Actions para automação de CI/CD:
 
 ### 🔄 Continuous Integration (`ci.yml`)
 
-- **Execução automática**: em push para `main`/`develop` e pull requests
+- **Execução automática**: 
+  - ✅ **Push**: `master`, `develop`, e todas as branches `feature/*`, `feature-*`, `fix/*`, `hotfix/*`
+  - ✅ **Pull requests**: para `master` e `develop`
 - **Matriz de testes**: Node.js 18.x e 20.x
 - **Verificações incluídas**:
   - ✅ Formatação de código (Prettier)
