@@ -80,19 +80,19 @@ export class FindAllResearchController extends OpenAPIRoute {
                     professionalId: research.professionalId,
                     images: research.image
                         ? research.image.map((image) => ({
-                            id: image.id,
-                            researchId: image.researchId,
-                            url: image.url,
-                            title: image.title,
-                            description: image.description
-                        }))
+                              id: image.id,
+                              researchId: image.researchId,
+                              url: image.url,
+                              title: image.title,
+                              description: image.description
+                          }))
                         : null,
                     professional: research.professional
                         ? {
-                            id: research.professional.id,
-                            name: research.professional.name,
-                            role: research.professional.role
-                        }
+                              id: research.professional.id,
+                              name: research.professional.name,
+                              role: research.professional.role
+                          }
                         : null
                 }))
             };

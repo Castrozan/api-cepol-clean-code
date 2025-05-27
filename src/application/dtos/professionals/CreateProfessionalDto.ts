@@ -4,5 +4,4 @@ export class CreateProfessionalDto {
     bio: string | null;
     imageUrl: string | null;
     hierarchy: number | null;
-
 }
