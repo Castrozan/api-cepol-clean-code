@@ -1,9 +1,11 @@
 import { FindAllAboutsUseCase } from 'application/use-cases/about/FindAllAboutUseCase';
-import { OpenAPIRoute } from 'chanfana';
+import { extendZodWithOpenApi, OpenAPIRoute } from 'chanfana';
 import aboutRepository from 'infrastructure/database/repositories/about';
 import { withErrorHandling } from 'presentation/decorators';
 import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
+
+extendZodWithOpenApi(z);
 
 export class FindAllAboutController extends OpenAPIRoute {
     schema = {
