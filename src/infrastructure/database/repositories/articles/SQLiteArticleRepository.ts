@@ -106,7 +106,7 @@ export class SQLiteArticleRepository implements IArticleRepository {
             rows.map(async (row) => {
                 return await this.findById(row.id);
             })
-        ) as Promise<Article[]>;
+        );
     }
 
     async create(
@@ -155,7 +155,7 @@ export class SQLiteArticleRepository implements IArticleRepository {
             db.prepare('COMMIT').run();
 
             // Return the created article with all data
-            return this.findById(articleId) as Promise<Article>;
+            return this.findById(articleId);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();
@@ -226,7 +226,7 @@ export class SQLiteArticleRepository implements IArticleRepository {
             db.prepare('COMMIT').run();
 
             // Return the updated article
-            return this.findById(article.id) as Promise<Article>;
+            return this.findById(article.id);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();

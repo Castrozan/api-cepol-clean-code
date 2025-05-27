@@ -61,7 +61,7 @@ export class SQLiteAboutRepository implements IAboutRepository {
             rows.map(async (row) => {
                 return await this.findById(row.id);
             })
-        ) as Promise<About[]>;
+        );
     }
 
     async create(about: Partial<About & { images?: Partial<AboutImage>[] }>): Promise<About> {
@@ -98,7 +98,7 @@ export class SQLiteAboutRepository implements IAboutRepository {
             db.prepare('COMMIT').run();
 
             // Return the created about with all data
-            return this.findById(aboutId) as Promise<About>;
+            return this.findById(aboutId);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();
@@ -150,7 +150,7 @@ export class SQLiteAboutRepository implements IAboutRepository {
             db.prepare('COMMIT').run();
 
             // Return the updated about
-            return this.findById(about.id) as Promise<About>;
+            return this.findById(about.id);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();

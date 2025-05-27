@@ -1,6 +1,6 @@
+import { Professional } from 'domain/entities/professionals/Professional';
 import { Research } from 'domain/entities/researchs/Research';
 import { ResearchImage } from 'domain/entities/researchs/ResearchImage';
-import { Professional } from 'domain/entities/professionals/Professional';
 import { IResearchRepository } from 'domain/interfaces/researchs/IResearchRepository';
 import { getDatabase } from '../../sqlite/sqlite-client';
 
@@ -102,7 +102,7 @@ export class SQLiteResearchRepository implements IResearchRepository {
             rows.map(async (row) => {
                 return await this.findById(row.id);
             })
-        ) as Promise<Research[]>;
+        );
     }
 
     async create(
@@ -149,7 +149,7 @@ export class SQLiteResearchRepository implements IResearchRepository {
             db.prepare('COMMIT').run();
 
             // Return the created research with all data
-            return this.findById(researchId) as Promise<Research>;
+            return this.findById(researchId);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();
@@ -216,7 +216,7 @@ export class SQLiteResearchRepository implements IResearchRepository {
             db.prepare('COMMIT').run();
 
             // Return the updated research
-            return this.findById(research.id) as Promise<Research>;
+            return this.findById(research.id);
         } catch (error) {
             // Rollback on error
             db.prepare('ROLLBACK').run();

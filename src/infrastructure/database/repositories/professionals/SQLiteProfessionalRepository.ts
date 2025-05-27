@@ -77,12 +77,12 @@ export class SQLiteProfessionalRepository implements IProfessionalRepository {
 
         return new Professional(
             Number(id),
-            professional.name!,
-            professional.role!,
+            professional.name,
+            professional.role,
             professional.bio ?? null,
             professional.imageUrl ?? null,
             createdAt,
-            professional.hierarchy!
+            professional.hierarchy
         );
     }
 

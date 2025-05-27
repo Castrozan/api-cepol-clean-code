@@ -76,7 +76,7 @@ export class SQLiteEquipmentRepository implements IEquipmentRepository {
 
         return new Equipment(
             Number(id),
-            equipment.name!,
+            equipment.name,
             equipment.description || null,
             equipment.imageUrl || null,
             createdAt,

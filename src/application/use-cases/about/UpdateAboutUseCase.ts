@@ -4,7 +4,7 @@ import { AboutImage } from 'domain/entities/about/AboutImage';
 import { IAboutRepository } from 'domain/interfaces/about/IAboutRepository';
 
 export class UpdateAboutUseCase {
-    constructor(private aboutRepository: IAboutRepository) {}
+    constructor(private readonly aboutRepository: IAboutRepository) {}
 
     async execute(dto: UpdateAboutDto): Promise<About> {
         const aboutToUpdate: Partial<About & { images?: Partial<AboutImage>[] }> = {

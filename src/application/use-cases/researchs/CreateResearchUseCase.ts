@@ -3,7 +3,7 @@ import { Research } from 'domain/entities/researchs/Research';
 import { IResearchRepository } from 'domain/interfaces/researchs/IResearchRepository';
 
 export class CreateResearchUseCase {
-    constructor(private researchRepository: IResearchRepository) {}
+    constructor(private readonly researchRepository: IResearchRepository) {}
 
     async execute(dto: CreateResearchDto): Promise<Research> {
         if (!dto) {
