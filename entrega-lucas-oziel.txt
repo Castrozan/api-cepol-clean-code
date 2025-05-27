@@ -1,0 +1,7 @@
+Segue os links dos repositórios para a entrega do trabalho
+
+Versão antiga:
+https://github.com/Castrozan/api-cepol-old
+
+Versão atual:
+https://github.com/Castrozan/api-cepol-clean-code
