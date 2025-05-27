@@ -22,14 +22,7 @@ describe('Equipment Entity', () => {
     });
 
     it('should allow nullable fields to be null', () => {
-        const equipment = new Equipment(
-            null,
-            'Bike',
-            null,
-            null,
-            validDate,
-            null
-        );
+        const equipment = new Equipment(null, 'Bike', null, null, validDate, null);
 
         expect(equipment.id).toBeNull();
         expect(equipment.description).toBeNull();
