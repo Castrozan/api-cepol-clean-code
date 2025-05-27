@@ -8,7 +8,7 @@ describe('Professional Entity', () => {
             'John Doe',
             'Developer',
             'Experienced developer',
-            'http://example.com/image.jpg',
+            'https://example.com/image.jpg',
             now,
             2
         );
@@ -17,7 +17,7 @@ describe('Professional Entity', () => {
         expect(professional.name).toBe('John Doe');
         expect(professional.role).toBe('Developer');
         expect(professional.bio).toBe('Experienced developer');
-        expect(professional.imageUrl).toBe('http://example.com/image.jpg');
+        expect(professional.imageUrl).toBe('https://example.com/image.jpg');
         expect(professional.createdAt).toBe(now);
         expect(professional.hierarchy).toBe(2);
     });
@@ -42,7 +42,7 @@ describe('Professional Entity', () => {
             'Alice Johnson',
             'Manager',
             'Team manager',
-            'http://example.com/alice.jpg',
+            'https://example.com/alice.jpg',
             now,
             5
         );

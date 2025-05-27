@@ -10,8 +10,8 @@ describe('Research Entity', () => {
     } as Professional;
 
     const mockImages: ResearchImage[] = [
-        { id: 1, url: 'http://example.com/image1.jpg', researchId: 1 } as ResearchImage,
-        { id: 2, url: 'http://example.com/image2.jpg', researchId: 1 } as ResearchImage
+        { id: 1, url: 'https://example.com/image1.jpg', researchId: 1 } as ResearchImage,
+        { id: 2, url: 'https://example.com/image2.jpg', researchId: 1 } as ResearchImage
     ];
 
     it('should create a Research instance with all properties', () => {

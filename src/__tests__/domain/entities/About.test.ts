@@ -4,8 +4,8 @@ import { AboutImage } from '../../../domain/entities/about/AboutImage';
 describe('About Entity', () => {
     test('should create an About instance with all properties', () => {
         const images: AboutImage[] = [
-            { id: 1, url: 'http://example.com/image1.jpg' } as AboutImage,
-            { id: 2, url: 'http://example.com/image2.jpg' } as AboutImage
+            { id: 1, url: 'https://example.com/image1.jpg' } as AboutImage,
+            { id: 2, url: 'https://example.com/image2.jpg' } as AboutImage
         ];
         const about = new About(
             1,
@@ -20,7 +20,7 @@ describe('About Entity', () => {
         expect(about.secondText).toBe('Secondary text');
         expect(about.createdAt).toEqual(new Date('2024-01-01T00:00:00Z'));
         expect(about.images).toHaveLength(2);
-        expect(about.images?.[0].url).toBe('http://example.com/image1.jpg');
+        expect(about.images?.[0].url).toBe('https://example.com/image1.jpg');
     });
 
     test('should allow id to be null', () => {
