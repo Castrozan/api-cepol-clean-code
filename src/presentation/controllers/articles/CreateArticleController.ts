@@ -1,9 +1,11 @@
 import { CreateArticleUseCase } from 'application/use-cases/articles/CreateArticleUseCase';
-import { OpenAPIRoute } from 'chanfana';
+import { OpenAPIRoute, extendZodWithOpenApi } from 'chanfana';
 import articleRepository from 'infrastructure/database/repositories/articles';
 import { withErrorHandling } from 'presentation/decorators';
 import { errorResponses, successResponse } from 'presentation/schemas/responses';
 import { z } from 'zod';
+
+extendZodWithOpenApi(z);
 
 export class CreateArticleController extends OpenAPIRoute {
     schema = {
